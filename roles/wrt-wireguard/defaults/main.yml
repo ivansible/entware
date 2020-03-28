@@ -1,3 +1,45 @@
 ---
 # defaults for ivansible.wrt_wireguard
+
+wrt_wg_iface: wg0
+wrt_wg_port: 0
+
+wrt_wg_default_net: default
+
+wrt_wg_nets: []
+# - name: net1         - name of subnet (REQUIRED)
+#   addr: 10.1.1.1/24  - local adddress on the subnet (REQUIRED)
+#   key: kkk           - local private key for subnet (default: wrt_wg_key)
+#   pub: ppp           - local public key for subnet, informational (optional)
+#   mtu: 0             - MTU for subnet (default: wrt_wg_mtu)
+#   keepalive: 0       - keep-alive (sec) on subnet (default: wrt_wg_keepalive)
+#   peers:             - list of peers on subnet (REQUIRED)
+#     - name: peer1      - peer name, informational (REQUIRED)
+#       active: true     - optional flag (default: true)
+#       key: xxx         - private key, informational (not required)
+#       pub: yyy         - public key (REQUIRED)
+#       psk: zzz         - preshared key (optional)
+#       ips: [ip/mask]   - allowed IPs, list of ip/mask pairs
+#       host: ip         - IP address of endpoint (optional)
+#       port: port       - port of endpoint, optional, defaults to lin_wg_port
+
+## defaults for all subnets
+wrt_wg_mtu: 0
+wrt_wg_keepalive: 0
+wrt_wg_addr: ~
+
+## commands to generate keys:
+## wg genkey | tee key | wg pubkey; cat key
+## wg genpsk
+wrt_wg_key: ~
+wrt_wg_pub: ~
+wrt_wg_psk: ~
+
+wrt_wg_prefer_userspace: false
+
+wrt_wg_initd: S33wireguard
+
+wrt_wg_packages:
+  - wireguard-tools
+  - wireguard-go
 ...

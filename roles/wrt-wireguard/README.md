@@ -4,9 +4,7 @@
 [![Travis Test Status](https://travis-ci.org/ivansible/wrt-wireguard.svg?branch=master)](https://travis-ci.org/ivansible/wrt-wireguard)
 [![Ansible Galaxy](https://img.shields.io/badge/galaxy-ivansible.wrt__wireguard-68a.svg?style=flat)](https://galaxy.ansible.com/ivansible/wrt_wireguard/)
 
-This role will:
- - action1;
- - action2;
+This role install Wireguard on Keenetic Entware.
 
 
 ## Requirements
@@ -16,7 +14,7 @@ None
 
 ## Variables
 
-Available variables are listed below, along with default values.
+Main variables are listed below:
 
     variable1: 1
     variable2: 2
@@ -24,8 +22,7 @@ Available variables are listed below, along with default values.
 
 ## Tags
 
-- `role1_tag1` -- action1
-- `role1_tag2` -- action2
+- `wrt_wg_all` -- all tasks
 
 
 ## Dependencies
@@ -35,11 +32,9 @@ None
 
 ## Example Playbook
 
-    - hosts: vagrant-boxes
+    - hosts: keenetic
       roles:
-         - role: wrt_wireguard
-           variable1: 1
-           variable2: 2
+         - wrt_wireguard
 
 
 ## License

@@ -1,3 +1,10 @@
 ---
 # handlers for ivansible.wrt_wireguard
+
+- name: restart wrt service wireguard
+  openwrt_init2:
+    name: "{{ wrt_wg_initd }}"
+    state: restarted
+  tags: skip_ansible_lint
+  become: true
 ...

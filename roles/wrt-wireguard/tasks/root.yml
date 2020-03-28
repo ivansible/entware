@@ -1,5 +1,85 @@
 ---
-- name: root task1
-  debug:
-    msg: task1
+- name: install wireguard packages
+  opkg:
+    name: "{{ wrt_wg_packages |join(',') }}"
+  tags: wrt_wg_install
+
+- name: install wireguard helper script wg-quick
+  copy:
+    src: wg-quick.entware.sh
+    dest: /opt/usr/sbin/wg-quick
+    mode: 0755
+    force: true
+  notify: restart wrt service wireguard
+  tags: wrt_wg_install
+
+- name: install wireguard helper script wg-setmetric
+  copy:
+    src: wg-setmetric.sh
+    dest: /opt/usr/sbin/wg-setmetric
+    mode: 0755
+    force: true
+  tags: wrt_wg_install
+
+- name: create wireguard startup script
+  template:
+    src: wg-initd.sh
+    dest: "/opt/etc/init.d/{{ wrt_wg_initd }}"
+    mode: 0755
+    force: true
+  notify: restart wrt service wireguard
+  tags:
+    - wrt_wg_install
+    - wrt_wg_service
+
+- name: create wireguard config directory
+  file:
+    path: /opt/etc/wireguard
+    state: directory
+    mode: 0755
+  tags:
+    - wrt_wg_install
+
+- name: update wireguard configuration
+  template:
+    src: wireguard.conf
+    dest: /opt/etc/wireguard/{{ net.name }}.conf
+    mode: 0640
+  vars:
+    addr: "{{ net.addr |default(wrt_wg_addr, true) }}"
+    key: "{{ net.key |default(wrt_wg_key, true) }}"
+    port: "{{ net.port |default(wrt_wg_port, true) |default(0,true) |int }}"
+    mtu: "{{ net.mtu |default(wrt_wg_mtu, true) |default(0,true) |int }}"
+    keepalive: "{{ net.keepalive |default(wrt_wg_keepalive, true) |default(0,true) |int }}"
+    iface: "{{ wrt_wg_iface }}"
+    peers: "{{ net.peers }}"
+    metric: ~
+  loop: "{{ wrt_wg_nets |default([],true) }}"
+  loop_control:
+    loop_var: net
+    label: "{{ net.name }}"
+  notify: restart wrt service wireguard
+  tags: wrt_wg_config
+
+- name: verify that default wireguard net has config
+  file:
+    path: "/opt/etc/wireguard/{{ wrt_wg_default_net }}.conf"
+    state: file
+  tags: wrt_wg_config
+
+- name: update symlink for default wireguard net
+  file:
+    state: link
+    dest: "/opt/etc/wireguard/{{ wrt_wg_iface }}.conf"
+    src: "{{ wrt_wg_default_net }}.conf"
+  notify: restart wrt service wireguard
+  tags: wrt_wg_config
+
+- name: enable wrt service wireguard
+  openwrt_init2:
+    name: "{{ wrt_wg_initd }}"
+    state: started
+  tags:
+    - skip_ansible_lint
+    - wrt_wg_service
 ...

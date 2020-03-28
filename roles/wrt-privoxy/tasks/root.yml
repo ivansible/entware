@@ -1,5 +1,38 @@
 ---
-- name: root task1
-  debug:
-    msg: task1
+- name: install privoxy package
+  opkg:
+    name: privoxy
+
+- name: backup original privoxy config
+  command: cp -a /opt/etc/privoxy/config /opt/etc/privoxy/config.orig
+  args:
+    creates: /opt/etc/privoxy/config.orig
+
+- name: set privoxy listening port
+  lineinfile:
+    path: /opt/etc/privoxy/config
+    regexp: '^\s*listen-address\b'
+    line: "listen-address {{ http_addr }}:{{ http_port }}"
+  notify: restart wrt service privoxy
+
+- name: set target socks port for privoxy
+  lineinfile:
+    path: /opt/etc/privoxy/config
+    regexp: '^\s*forward-socks5\b'
+    line: "forward-socks5 / 127.0.0.1:{{ socks_port }} ."
+  notify: restart wrt service privoxy
+
+- name: permit privoxy access from anyone (protected by netfilter)
+  lineinfile:
+    path: /opt/etc/privoxy/config
+    regexp: '^\s*(permit-access\b.*)$'
+    line: '## \1'
+    backrefs: true
+  notify: restart wrt service privoxy
+
+- name: enable wrt service privoxy
+  openwrt_init2:
+    name: S24privoxy
+    state: started
+  tags: skip_ansible_lint
 ...

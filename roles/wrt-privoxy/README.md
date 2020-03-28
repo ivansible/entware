@@ -4,9 +4,8 @@
 [![Travis Test Status](https://travis-ci.org/ivansible/wrt-privoxy.svg?branch=master)](https://travis-ci.org/ivansible/wrt-privoxy)
 [![Ansible Galaxy](https://img.shields.io/badge/galaxy-ivansible.wrt__privoxy-68a.svg?style=flat)](https://galaxy.ansible.com/ivansible/wrt_privoxy/)
 
-This role will:
- - action1;
- - action2;
+This role installs _privoxy_ http proxy on Keenetic routers
+allowing to expose local SOCKS servers as HTTP proxy.
 
 
 ## Requirements
@@ -16,16 +15,23 @@ None
 
 ## Variables
 
-Available variables are listed below, along with default values.
+    wrt_privoxy_enable: false
+Enables installation of privoxy. Role is skipped if this is false.
 
-    variable1: 1
-    variable2: 2
+    wrt_privoxy_listen_addr: 127.0.0.1
+    wrt_privoxy_listen_port: 3128
+Sets listening address/port for incoming HTTP proxy requests.
+Use address `0.0.0.0` to listen on all interfaces.
+
+    wrt_privoxy_socks_port: 1080
+Privoxy will forward incoming HTTP proxy requests to the given
+SOCKS port on the local loopback interface (interface is *NOT* configurable).
+You can choose between _srelay_, _v2ray_, or _shadowsocks_ SOCKS ports.
 
 
 ## Tags
 
-- `role1_tag1` -- action1
-- `role1_tag2` -- action2
+- `wrt_privoxy_all` -- all tasks
 
 
 ## Dependencies
@@ -35,11 +41,12 @@ None
 
 ## Example Playbook
 
-    - hosts: vagrant-boxes
+    - hosts: keenetic
       roles:
-         - role: wrt_privoxy
-           variable1: 1
-           variable2: 2
+         - role: ivansible.wrt_privoxy
+           wrt_privoxy_enable: true
+           wrt_privoxy_listen_addr: 192.168.1.1
+           wrt_privoxy_listen_port: 8080
 
 
 ## License

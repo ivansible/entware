@@ -1,3 +1,8 @@
 ---
 # defaults for ivansible.wrt_privoxy
+
+wrt_privoxy_enable: false
+wrt_privoxy_listen_addr: 127.0.0.1
+wrt_privoxy_listen_port: 3128
+wrt_privoxy_socks_port: 1080
 ...

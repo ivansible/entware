@@ -1,0 +1,22 @@
+---
+- name: add shell aliases for user
+  blockinfile:
+    path: "{{ ansible_user_dir }}/.profile"
+    block: |
+      {% for alias in wrt_shell_aliases |dictsort %}
+      alias {{ alias.0 }}='{{ alias.1 }}'
+      {% endfor %}
+    marker: '# {mark} ANSIBLE SHELL ALIASES'
+    create: true
+
+- name: customize tmux for user
+  lineinfile:
+    path: "{{ ansible_user_dir }}/.tmux.conf"
+    line: "{{ item }}"
+    create: true
+  loop:
+    - 'set-option -g history-limit 22000'
+    - 'bind -n C-k clear-history'  # clear scroll buffer on Ctrl-K
+    - 'bind -n C-u copy-mode -u'   # show scroll buffer on Ctrl-U
+    - 'new-session'                # auto-create new sessions
+...

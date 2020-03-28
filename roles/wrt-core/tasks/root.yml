@@ -1,5 +1,20 @@
 ---
-- name: root task1
-  debug:
-    msg: task1
+- name: install core packages
+  opkg:
+    name: "{{ wrt_core_packages |join(',') }}"
+  tags: wrt_core_packages
+
+- name: configure ssh
+  import_tasks: ssh.yml
+  tags: wrt_core_ssh
+
+- name: configure user environment
+  import_tasks: user.yml
+  tags: wrt_core_user
+
+- name: setup swap space
+  import_tasks: swap.yml
+  when: wrt_swap_size_mb |int > 0 and
+        wrt_swap_file |default('')
+  tags: wrt_core_swap
 ...

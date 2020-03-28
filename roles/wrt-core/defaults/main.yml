@@ -1,3 +1,68 @@
 ---
 # defaults for ivansible.wrt_core
+
+wrt_swap_size_mb: 0
+wrt_swap_file: /opt/swap
+
+wrt_ssh_authorized_keys: []
+
+wrt_ssh_settings:
+  Port: "{{ ansible_port }}"
+  UseDNS: 'no'
+  PubkeyAuthentication: 'yes'
+  PasswordAuthentication: 'no'
+  PermitEmptyPasswords: 'no'
+
+wrt_shell_aliases:
+  c: clear
+  h: head
+  l: ls --color=auto --group-directories-first
+  ll: ls -l --color=auto --group-directories-first
+  md: mkdir
+  m: less -F
+  pg: ps w | grep -i
+  rmf: rm -f
+  rmr: rm -rf
+  t: tail
+  tf: tail -f
+  v: vim
+  wl: wc -l
+  sc: supervisorctl
+  tt: tmux attach
+
+wrt_core_packages:
+  ## essential packages
+  - python3
+  - python3-pip
+  - python3-setuptools
+  - python3-openssl
+  - ca-certificates
+  - openssh-client
+  - openssh-server
+  - openssh-keygen
+  - sudo
+  - opkg
+  ## core programs
+  - coreutils
+  - file
+  - findutils
+  - grep
+  - gzip
+  - bash
+  ## network
+  - curl
+  - netcat
+  - ncat
+  - iperf
+  - bind-dig
+  - bind-host
+  - iptables
+  - tcpdump
+  ## utilities
+  - atop
+  - vim
+  - screen
+  - tmux
+  - ndmq
+  - jq
 ...

@@ -1,0 +1,25 @@
+---
+- name: tweak ssh server settings
+  lineinfile:
+    path: /opt/etc/ssh/sshd_config
+    regexp: '^#*\s*{{ item.0 }}\b'
+    line: '{{ item.0 }} {{ item.1 }}'
+    insertbefore: '^Match|^Subsystem'
+    firstmatch: true
+  loop: "{{ wrt_ssh_settings |dictsort }}"
+  loop_control:
+    label: "{{ item.0 }}"
+  notify: restart wrt service ssh
+
+- name: authorize ssh keys
+  authorized_key:
+    user: "{{ ansible_user_id }}"
+    key: "{{ lookup('pipe', keygen_cmd) }}"
+    comment: "{{ item |basename |regex_replace('[.]key$') }}"
+  vars:
+    # use '&&' in the pipe to fail on chmod errors
+    keygen_cmd: 'chmod 600 "{{ item }}" && ssh-keygen -y -f "{{ item }}"'
+  loop: "{{ wrt_ssh_authorized_keys }}"
+  loop_control:
+    label: "{{ item | basename }}"
+...

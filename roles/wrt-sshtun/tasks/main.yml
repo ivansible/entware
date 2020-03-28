@@ -1,6 +1,12 @@
 ---
-- name: become root and install role
+- name: setup ssh tun client as root
   import_tasks: root.yml
   become: true
-  tags: role_all
+  when: wrt_sshtun_servers |default([])
+        and wrt_sshtun_default_server |default('')
+  tags: wrt_sshtun_all
+
+- name: run postponed handlers now
+  meta: flush_handlers
+  tags: wrt_sshtun_all
 ...

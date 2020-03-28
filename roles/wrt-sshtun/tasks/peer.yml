@@ -1,0 +1,75 @@
+---
+- name: install private ssh key for sshtun peer '{{ name }}'
+  copy:
+    src: "{{ ssh_key }}"
+    dest: "{{ ansible_user_dir }}/.ssh/{{ ssh_key |basename }}"
+    mode: 0600
+  when: ssh_key |default('')
+  notify: restart wrt service sshtun
+  tags:
+    - wrt_sshtun_ssh_key
+    - wrt_sshtun_ssh
+
+- name: add known host key for sshtun peer '{{ name }}'
+  known_hosts:
+    path: "{{ keys_file }}"
+    name: "{{ key_name }}"
+    key: "{{ lookup('pipe', keyscan_cmd) or lookup('pipe', fallback_cmd) or known_host_key }}"
+  vars:
+    key_type: ecdsa
+    keys_file: "{{ ansible_user_dir }}/.ssh/known_hosts"
+    linux_keys_file: /etc/ssh/ssh_known_hosts
+    keyscan_cmd: "ssh-keyscan -t {{ key_type }} -p {{ ssh_port }} {{ ssh_host }} 2>/dev/null"
+    fallback_cmd: "grep -F '{{ key_name }}' '{{ linux_keys_file }}' || true | grep ssh-{{ key_type }} | head -1"
+    ## key name for proxy needs to be fixed...
+    key_name: "{{ key_name_noproxy }}"
+    # key_name: "{{ proxy |ternary(key_name_proxy, key_name_noproxy) }}"
+    key_name_proxy: "{{ 'sshtun-' + ssh_alias }}"
+    key_name_noproxy: "{{ ssh_host if ssh_port == 22 else '[%s]:%s' |format(ssh_host, ssh_port) }}"
+  notify: restart wrt service sshtun
+  ## retry sporadic ssh-keyscan failures
+  register: sshtun_keyscan_result
+  until: sshtun_keyscan_result is successful
+  ignore_errors: "{{ keyscan_workaround }}"
+  when: strict_host_checks
+  tags:
+    - wrt_sshtun_ssh_host
+    - wrt_sshtun_ssh
+
+- name: warn about keyscan for sshtun peer '{{ name }}'
+  debug:
+    msg: "keyscan failed for peer '{{ name }}' - strict host checking is disabled!"
+  when: keyscan_workaround and sshtun_keyscan_result is failed
+  tags:
+    - wrt_sshtun_ssh_host
+    - wrt_sshtun_ssh
+
+- name: update ssh alias for sshtun peer '{{ name }}'
+  blockinfile:
+    path: "{{ ansible_user_dir }}/.ssh/config"
+    block: "{{ lookup('template', 'ssh.config') }}"
+    marker: '# {mark} SSHTUN ({{ ssh_alias }})'
+    mode: 0600
+    create: true
+    backup: true
+  vars:
+    keyscan_fallback: "{{ keyscan_workaround and sshtun_keyscan_result is failed }}"
+    proxy_url: "{{ proxy if '//' in proxy else '//' + proxy }}"
+    proxy_type: "{{ proxy_url |urlsplit('scheme') or 'socks5' }}"
+    proxy_host: "{{ proxy_url |urlsplit('hostname') or '127.0.0.1' }}"
+    proxy_port: "{{ proxy_url |urlsplit('port') or 1080 }}"
+  notify: restart wrt service sshtun
+  tags:
+    - wrt_sshtun_ssh
+    - wrt_sshtun_ssh_config
+    - wrt_sshtun_config
+
+- name: update configuration for sshtun peer '{{ name }}'
+  template:
+    src: sshtun.config
+    dest: "/opt/etc/sshtun/{{ name }}"
+    mode: 0640
+  notify: restart wrt service sshtun
+  tags:
+    - wrt_sshtun_config
+...

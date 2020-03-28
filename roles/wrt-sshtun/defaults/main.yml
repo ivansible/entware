@@ -1,3 +1,61 @@
 ---
 # defaults for ivansible.wrt_sshtun
+
+wrt_sshtun_default_server: default
+
+wrt_sshtun_servers: []
+#  - name: default              # name of config and ssh peer alias (REQUIRED)
+#    ssh_host: example.com      # ssh server host name (REQUIRED)
+#    ssh_port: ~                # overrides server port (default: wrt_sshtun_ssh_port)
+#    ssh_user: ~                # overrides user name (default: wrt_sshtun_ssh_user)
+#    ssh_key: ~                 # private key file (default: wrt_sshtun_ssh_key)
+#    strict_host_checks: ~      # enables strict host key check (default depends on proxy)
+#    keyscan_workaround: false  # re-enable strict host check if keyscan fails
+#    host_key: ~                # optional static host key (fixes keyscan failure if any)
+#    proxy: ~                   # optional, eg. socks5://address:port (default: wrt_sshtun_proxy)
+#    gw_ipv4: ~                 # overrides point-to-point ipv4 subnet (default: wrt_sshtun_gw_ipv4)
+#    gw_ipv6: ~                 # overrides point-to-point ipv4 subnet (default: wrt_sshtun_gw_ipv6)
+#    remote_tun: ~              # overrides remote tun device number (default: wrt_sshtun_remote_tun)
+#    socks_port: ~              # overrides socks port on server (default: wrt_sshtun_socks_port)
+#    forward_ports: ~           # overrides list of port forwards (default: wrt_sshtun_forward_ports)
+
+wrt_sshtun_ssh_user: ~
+wrt_sshtun_ssh_port: 22
+wrt_sshtun_ssh_key: ~
+
+wrt_sshtun_proxy: ~
+
+wrt_sshtun_local_tun: 1
+wrt_sshtun_remote_tun: 1
+
+wrt_sshtun_socks_port: 0
+
+wrt_sshtun_forward_ports: ~
+# - comment: ssh   - optional comment
+#   local: 22      - localhost PORT or tuple HOST:PORT to forward
+#   remote: 51022  - listening port on remote peer
+
+wrt_sshtun_gw_ipv4: 10.1.1
+wrt_sshtun_gw_ipv6: fd00:1
+
+wrt_sshtun_keyscan_workaround: false
+
+wrt_sshtun_command_path: /usr/local/sbin/sshtun-serv
+
+wrt_sshtun_alive_interval: 60
+wrt_sshtun_sleep_interval: 60
+
+wrt_sshtun_initd: S39sshtun
+
+wrt_sshtun_packages:
+  - openssh-client
+  - ncat
+  - netcat
+  - iptables
+  - sudo
+
+## rekey limits
+## https://man.openbsd.org/ssh_config#RekeyLimit
+## http://manpages.ubuntu.com/manpages/bionic/man5/sshd_config.5.html#time%20formats
+wrt_sshtun_rekey_limit: '1G 2h'
 ...

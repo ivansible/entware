@@ -1,5 +1,142 @@
 ---
-- name: root task1
-  debug:
-    msg: task1
+- name: install sshtun packages
+  opkg:
+    name: "{{ wrt_sshtun_packages |join(',') }}"
+  tags:
+    - wrt_sshtun_packages
+
+- name: create sshtun helper script for netfilter
+  include_role:
+    name: ivansible.wrt_net
+    tasks_from: netfilter.yml
+    apply:
+      become: true
+      tags:
+        - wrt_sshtun_netfilter
+        - wrt_sshtun_scripts
+        - wrt_sshtun_all
+  vars:
+    hooks: ["tun{{ wrt_sshtun_local_tun }}.open"]
+  tags:
+    - wrt_sshtun_netfilter
+    - wrt_sshtun_scripts
+
+- name: create sshtun helper script for ssh client
+  copy:
+    src: sshtun-up.sh
+    dest: /opt/usr/sbin/sshtun-up.sh
+    mode: 0755
+    force: true
+  notify: restart wrt service sshtun
+  tags:
+    - wrt_sshtun_ssh
+    - wrt_sshtun_scripts
+
+- name: create sshtun service script
+  copy:
+    src: sshtun-service.sh
+    dest: /opt/usr/sbin/sshtun-service.sh
+    mode: 0755
+    force: true
+  notify: restart wrt service sshtun
+  tags:
+    - wrt_sshtun_service
+    - wrt_sshtun_scripts
+
+- name: create directory for ssh client config
+  file:
+    path: "{{ ansible_user_dir }}/.ssh"
+    state: directory
+  tags:
+    - wrt_sshtun_ssh
+
+- name: create directory for sshtun config files
+  file:
+    path: /opt/etc/sshtun
+    state: directory
+  tags:
+    - wrt_sshtun_config
+
+- name: setup sshtun server peers
+  include_tasks: peer.yml
+  args:
+    apply:
+      become: true
+      tags:
+        - wrt_sshtun_peers
+        - wrt_sshtun_all
+  vars:
+    name: "{{ peer.name |default('',true) |string }}"
+    ssh_alias: "{{ name }}"
+
+    ssh_host: "{{ peer.ssh_host |default('',true) |string }}"
+    ssh_port: "{{ peer.ssh_port |default(wrt_sshtun_ssh_port, true) |default(22,true) |int }}"
+    ssh_user: "{{ peer.ssh_user |default(wrt_sshtun_ssh_user, true) |default('',true) |string }}"
+    ssh_key: "{{ peer.ssh_key |default(wrt_sshtun_ssh_key, true) |default('',true) |string }}"
+
+    ## note: known_host key is broken with proxy
+    strict_host_checks: "{{ peer.strict_host_checks |default(proxy == '', true) |bool }}"  # noqa 602
+    known_host_key: "{{ peer.host_key |default('',true) }}"
+    keyscan_workaround: "{{ peer.keyscan_workaround |default(wrt_sshtun_keyscan_workaround) |bool }}"
+    proxy: "{{ peer.proxy |default(wrt_sshtun_proxy, true) |default('',true) |string }}"
+
+    socks_port: "{{ peer.socks_port |default(wrt_sshtun_socks_port, true) |default(0,true) |int }}"
+    forward_ports: "{{ peer.forward_ports |default(wrt_sshtun_forward_ports, true) |default([],true) }}"
+
+    gw_ipv4: "{{ peer.gw_ipv4 |default(wrt_sshtun_gw_ipv4, true) |string }}"
+    gw_ipv6: "{{ peer.gw_ipv6 |default(wrt_sshtun_gw_ipv6, true) |string }}"
+    remote_tun: "{{ peer.remote_tun |default(wrt_sshtun_remote_tun, true) |int }}"
+    local_tun: "{{ wrt_sshtun_local_tun }}"
+    local_tun_device: "tun{{ local_tun }}"
+  when: ssh_alias and ssh_host and ssh_user
+  loop: "{{ wrt_sshtun_servers |default([],true) }}"
+  loop_control:
+    loop_var: peer
+    label: "{{ name }}"
+  tags:
+    - wrt_sshtun_peers
+    - wrt_sshtun_config
+    - wrt_sshtun_ssh
+    - wrt_sshtun_ssh_config
+    - wrt_sshtun_ssh_host
+    - wrt_sshtun_ssh_key
+
+- name: verify that default sshtun peer has config
+  file:
+    path: /opt/etc/sshtun/{{ wrt_sshtun_default_server }}
+    state: file
+  tags:
+    - wrt_sshtun_peers
+    - wrt_sshtun_config
+    - wrt_sshtun_service
+
+- name: update symlink for default sshtun peer
+  file:
+    state: link
+    dest: /opt/etc/sshtun/config
+    src: "{{ wrt_sshtun_default_server }}"
+  notify: restart wrt service sshtun
+  tags:
+    - wrt_sshtun_peers
+    - wrt_sshtun_config
+    - wrt_sshtun_service
+
+- name: create sshtun startup script
+  copy:
+    src: sshtun-initd.sh
+    dest: "/opt/etc/init.d/{{ wrt_sshtun_initd }}"
+    mode: 0755
+    force: true
+  notify: restart wrt service sshtun
+  tags:
+    - wrt_sshtun_service
+    - wrt_sshtun_scripts
+
+- name: enable wrt service sshtun
+  openwrt_init2:
+    name: "{{ wrt_sshtun_initd }}"
+    state: started
+  tags:
+    - skip_ansible_lint
+    - wrt_sshtun_service
 ...

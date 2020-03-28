@@ -1,3 +1,16 @@
 ---
 # handlers for ivansible.wrt_ss
+
+- name: remove temporary v2ray plugin directory
+  file:
+    path: "{{ temp_v2ray_plugin_dir.path }}"
+    state: absent
+  become: true
+
+- name: restart wrt service shadowsocks
+  openwrt_init2:
+    name: S22shadowsocks
+    state: restarted
+  tags: skip_ansible_lint
+  become: true
 ...

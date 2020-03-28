@@ -1,5 +1,52 @@
 ---
-- name: root task1
-  debug:
-    msg: task1
+- name: install shadowsocks packages
+  opkg:
+    name: "{{ wrt_ss_packages |join(',') }}"
+  tags: wrt_ss_packages
+
+- name: detect latest release of v2ray plugin for shadowsocks
+  github_release:
+    repository: shadowsocks/v2ray-plugin
+    release: latest
+    template: '{download_url}/v2ray-plugin-linux-mips-{ver}.tar.gz'
+    creates: "{{ wrt_ss_v2ray_plugin_binary }}"
+    reinstall: "{{ wrt_ss_v2ray_plugin_upgrade |bool }}"
+  register: latest_v2ray_plugin_release
+  notify: restart wrt service shadowsocks
+  tags: wrt_ss_v2ray
+
+- name: install latest v2ray plugin for shadowsocks
+  include_tasks: v2ray.yml
+  args:
+    apply:
+      become: true
+      tags:
+        - wrt_ss_v2ray
+        - wrt_ss_all
+  tags: wrt_ss_v2ray
+  when: latest_v2ray_plugin_release is changed
+
+- name: update shadowsocks configuration
+  template:
+    src: shadowsocks.json
+    dest: /opt/etc/shadowsocks.json
+    mode: 0644
+    backup: true
+  notify: restart wrt service shadowsocks
+  tags: wrt_ss_config
+
+- name: ensure that shadowsocks init script is executable
+  file:
+    path: /opt/etc/init.d/S22shadowsocks
+    mode: 0755
+  notify: restart wrt service shadowsocks
+  tags: wrt_ss_service
+
+- name: enable wrt service shadowsocks
+  openwrt_init2:
+    name: S22shadowsocks
+    state: started
+  tags:
+    - skip_ansible_lint
+    - wrt_ss_service
 ...

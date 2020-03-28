@@ -1,3 +1,30 @@
 ---
 # defaults for ivansible.wrt_ss
+
+wrt_ss_enable: true
+
+wrt_ss_socks_port: 11080     # avoid port overlap with v2ray
+wrt_ss_socks_addr: 127.0.0.1
+
+## shadowsocks server parameters:
+wrt_ss_web_host: example.com
+wrt_ss_web_port: 443
+wrt_ss_web_path: /
+
+wrt_ss_password: supersecret
+wrt_ss_method: chacha20-ietf-poly1305
+
+wrt_ss_timeout: 60
+
+wrt_ss_v2ray_plugin_upgrade: false
+wrt_ss_v2ray_plugin_binary: /opt/usr/sbin/v2ray-plugin
+
+wrt_ss_packages:
+  - shadowsocks-libev-config
+  - shadowsocks-libev-ss-local
+  - shadowsocks-libev-ss-server
+  - shadowsocks-libev-ss-tunnel
+  - socksify
+  - ca-bundle
+  - ca-certificates
 ...

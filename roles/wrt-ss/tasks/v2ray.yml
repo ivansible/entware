@@ -1,0 +1,47 @@
+---
+- name: ensure that temporary directory parent exists
+  file:
+    state: directory
+    ## avoid tmpfs in /tmp and /var/tmp as memory is limited
+    path: "{{ ansible_user_dir }}/.ansible/tmp"
+  register: temp_v2ray_parent
+
+- name: create temporary directory for v2ray plugin archive
+  tempfile:
+    state: directory
+    path: "{{ temp_v2ray_parent.path }}"
+    prefix: v2ray-plugin-archive.
+  register: temp_v2ray_plugin_dir
+  notify: remove temporary v2ray plugin directory
+
+- name: download archived v2ray plugin
+  get_url:
+    url: "{{ latest_v2ray_plugin_release.url }}"
+    dest: "{{ temp_v2ray_plugin_dir.path }}/release.tar.gz"
+    force: true
+
+## Ansible unarchive module rejects busybox tar demanding GNU tar.
+## As a workaround, download and unpack the archive manually
+- name: unpack downloaded v2ray plugin archive
+  # noqa 303 301
+  command: tar -xzf release.tar.gz
+  args:
+    chdir: "{{ temp_v2ray_plugin_dir.path }}"
+
+- name: ensure that v2ray plugin directory exists
+  file:
+    path: "{{ wrt_ss_v2ray_plugin_binary |dirname }}"
+    state: directory
+
+- name: copy v2ray plugin binary in place
+  copy:
+    remote_src: true
+    src: "{{ temp_v2ray_plugin_dir.path }}/v2ray-plugin_linux_mipsle_sf"
+    dest: "{{ wrt_ss_v2ray_plugin_binary }}"
+    force: true
+
+- name: ensure that v2ray plugin binary is executable
+  file:
+    path: "{{ wrt_ss_v2ray_plugin_binary }}"
+    mode: 0755
+...

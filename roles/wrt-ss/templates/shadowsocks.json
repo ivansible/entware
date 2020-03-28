@@ -1,0 +1,13 @@
+{
+    "server": "{{ wrt_ss_web_host }}",
+    "server_port": {{ wrt_ss_web_port |int }},
+    "local_address": "{{ wrt_ss_socks_addr }}",
+    "local_port": {{ wrt_ss_socks_port |int }},
+    "password": "{{ wrt_ss_password }}",
+    "method":" {{ wrt_ss_method }}",
+    "fast_open": true,
+    "prefer_ipv6": true,
+    "plugin":"{{ wrt_ss_v2ray_plugin_binary }}",
+    "plugin_opts":"tls;host={{ wrt_ss_web_host }};path={{ wrt_ss_web_path }};cert=/opt/etc/ssl/cert.pem",
+    "timeout": {{ wrt_ss_timeout |int }}
+}

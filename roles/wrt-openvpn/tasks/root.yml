@@ -1,5 +1,72 @@
 ---
-- name: root task1
-  debug:
-    msg: task1
+- name: install openvpn packages
+  opkg:
+    name: "{{ wrt_ovpn_packages |join(',') }}"
+
+- name: create directory for openvpn configs
+  file:
+    path: /opt/etc/openvpn
+    state: directory
+
+
+- name: update openvpn configs
+  copy:
+    dest: "/opt/etc/openvpn/{{ client_name }}.conf"
+    ## fix extra linefeed at the end
+    content: "{{ lookup('template', 'client.ovpn').strip() }}"
+    force: true
+    backup: "{{ wrt_ovpn_backups |bool }}"
+  loop: "{{ wrt_ovpn_servers |default([],true) }}"
+  loop_control:
+    label: "{{ item.name }}"
+  notify: restart wrt service openvpn
+
+  vars:
+    server_name: wrt
+    client_name: "{{ item.name }}"
+    server_host: "{{ item.host }}"
+    server_cname: "{{ item.cname }}"
+    visible_port: "{{ item.port }}"
+    client_proto: "{{ 'udp' if item.proto == 'udp' else 'tcp-client' }}"
+
+    proxy: "{{ item.proxy |default('',true) |string }}"
+    proxy_url: "{{ proxy if '//' in proxy else '//' + proxy }}"
+    proxy_type: "{{ proxy_url |urlsplit('scheme') or 'socks5' }}"
+    proxy_host: "{{ proxy_url |urlsplit('hostname') or '127.0.0.1' }}"
+    proxy_port: "{{ proxy_url |urlsplit('port') or 1080 }}"
+
+    client_crt_text: "{{ item.client_cert }}"
+    client_key_text: "{{ item.client_key }}"
+    ovpn_ca_cert: "{{ item.ca_cert }}"
+    ovpn_tlscrypt_key: "{{ item.tlscrypt_key }}"
+
+    ovpn_curve: "{{ wrt_ovpn_curve }}"
+    ovpn_cipher: "{{ wrt_ovpn_cipher }}"
+    ovpn_cc_cipher: "{{ wrt_ovpn_cc_cipher }}"
+    ovpn_hmac_alg: "{{ wrt_ovpn_hmac_alg }}"
+    ovpn_reneg_sec: "{{ wrt_ovpn_reneg_sec }}"
+    ovpn_compress: "{{ wrt_ovpn_compress }}"
+
+    client_device: "{{ wrt_ovpn_tun_device }}"
+    interface_name: ~             # windows-only
+    ovpn_prevent_dns_leak: false  # windows-only
+
+
+- name: verify that default openvpn peer has config
+  file:
+    path: "/opt/etc/openvpn/{{ wrt_ovpn_default_server }}.conf"
+    state: file
+
+- name: update symlink for default openvpn peer
+  file:
+    state: link
+    dest: /opt/etc/openvpn/openvpn.conf
+    src: "{{ wrt_ovpn_default_server }}.conf"
+  notify: restart wrt service openvpn
+
+- name: enable wrt service openvpn
+  openwrt_init2:
+    name: S20openvpn
+    state: started
+  tags: skip_ansible_lint
 ...

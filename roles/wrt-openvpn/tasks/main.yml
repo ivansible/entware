@@ -1,6 +1,16 @@
 ---
-- name: become root and install role
+- name: become root and setup openvpn
   import_tasks: root.yml
   become: true
-  tags: role_all
+  when: wrt_ovpn_servers |default([])
+        and wrt_ovpn_default_server |default('')
+  tags:
+    - wrt_ovpn_all
+    - wrt_openvpn_all
+
+- name: run postponed handlers now
+  meta: flush_handlers
+  tags:
+    - wrt_ovpn_all
+    - wrt_openvpn_all
 ...

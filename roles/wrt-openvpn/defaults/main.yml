@@ -1,3 +1,33 @@
 ---
 # defaults for ivansible.wrt_openvpn
+
+wrt_ovpn_default_server: default
+
+wrt_ovpn_servers: []
+#  - name: default                # server name
+#    host: myserver.com           # server host or address
+#    port: 1194                   # server port
+#    proto: udp                   # tcp or udp
+#    proxy: ~                     # optional, eg. socks5://address:port
+#    client_cert: '--- BEGIN...'  # client certificate as text
+#    client_key: '--- BEGIN...'   # client key as text
+#    server_cert: '--- BEGIN...'  # server certificate as text
+#    ca_cert: '--- BEGIN...'      # CA certificate as text
+
+wrt_ovpn_packages:
+  - openvpn-openssl
+
+wrt_ovpn_backups: true
+
+## Settings below this line must be synchronized between openvpn roles
+
+wrt_ovpn_curve: prime256v1
+wrt_ovpn_cipher: AES-128-GCM
+wrt_ovpn_cc_cipher: TLS-ECDHE-ECDSA-WITH-AES-128-GCM-SHA256
+wrt_ovpn_hmac_alg: SHA256
+
+wrt_ovpn_reneg_sec: ~  # cipher renegotiantion interval (default: 1 hour)
+wrt_ovpn_compress: ~   # one of: lz4-v2, lz4, lzo, none (default: no compression)
+
+wrt_ovpn_tun_device: tun
 ...

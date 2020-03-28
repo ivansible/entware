@@ -10,14 +10,16 @@ galaxy_info:
   min_ansible_version: 2.5
 
   platforms:
-    - name: Ubuntu
+    - name: GenericLinux
       versions:
-        - xenial
-        - bionic
+        - any
 
   galaxy_tags:
-    - linux
-    - ansible
+    - keenetic
+    - entware
+    - srelay
+    - socks
+    - proxy
 
   github_branch: master
 ...

@@ -1,5 +1,24 @@
 ---
-- name: root task1
-  debug:
-    msg: task1
+- name: install srelay package
+  opkg:
+    name: srelay
+
+- name: configure srelay as simple socks proxy
+  copy:
+    dest: /opt/etc/srelay.conf
+    content: |
+      * any
+    force: true
+    backup: true
+  notify: restart wrt service srelay
+
+- name: restrict srelay to listening on private interface
+  lineinfile:
+    path: /opt/etc/init.d/S26srelay
+    regex: '^ARGS='
+    line: "ARGS=\"-i {{ wrt_srelay_addr }}:{{ wrt_srelay_port |int }} -c /opt/etc/srelay.conf -r -s\""
+    backup: true
+  notify: restart wrt service srelay
+  when: wrt_srelay_addr |default('') and
+        wrt_srelay_port |int
 ...

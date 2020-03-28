@@ -4,9 +4,8 @@
 [![Travis Test Status](https://travis-ci.org/ivansible/wrt-srelay.svg?branch=master)](https://travis-ci.org/ivansible/wrt-srelay)
 [![Ansible Galaxy](https://img.shields.io/badge/galaxy-ivansible.wrt__srelay-68a.svg?style=flat)](https://galaxy.ansible.com/ivansible/wrt_srelay/)
 
-This role will:
- - action1;
- - action2;
+This role installs [srelay](https://github.com/gco/srelay/#readme)
+socks proxy on Keenetic routers.
 
 
 ## Requirements
@@ -16,16 +15,20 @@ None
 
 ## Variables
 
-Available variables are listed below, along with default values.
+    wrt_srelay_enable: false
+Enables installation of socks server. Role is skipped if this is false.
 
-    variable1: 1
-    variable2: 2
+    wrt_srelay_port: 1080
+Listening port of socks server.
+
+    wrt_srelay_addr: ~
+If non-empty, the socks server will be restricted to listening on the given
+IP address. Otherwise, the server will listen on all interfaces (the default).
 
 
 ## Tags
 
-- `role1_tag1` -- action1
-- `role1_tag2` -- action2
+- `wrt_srelay_all` -- all tasks
 
 
 ## Dependencies
@@ -35,11 +38,12 @@ None
 
 ## Example Playbook
 
-    - hosts: vagrant-boxes
+    - hosts: keenetic
       roles:
-         - role: wrt_srelay
-           variable1: 1
-           variable2: 2
+         - role: ivansible.wrt_srelay
+           wrt_srelay_enable: true
+           wrt_srelay_addr: 127.0.0.1
+           wrt_srelay_port: 11080
 
 
 ## License

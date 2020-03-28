@@ -1,6 +1,10 @@
 ---
-- name: become root and install role
+- name: setup and enable supervisor
   import_tasks: root.yml
   become: true
-  tags: role_all
+  when: wrt_use_supervisor |bool
+  tags: wrt_supervisor_all
+
+- name: run postponed handlers now
+  meta: flush_handlers
 ...

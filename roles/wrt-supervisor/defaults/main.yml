@@ -1,3 +1,7 @@
 ---
 # defaults for ivansible.wrt_supervisor
+
+wrt_use_supervisor: false
+wrt_supervisor_port: 9001
+wrt_supervisor_initd: S11supervisor
 ...

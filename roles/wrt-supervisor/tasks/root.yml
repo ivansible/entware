@@ -1,5 +1,44 @@
 ---
-- name: root task1
-  debug:
-    msg: task1
+- name: check for existing supervisord
+  stat:
+    path: /opt/bin/supervisord
+  register: stat_supervisord
+
+- name: install supervisor
+  pip:
+    name: supervisor
+    state: present
+    executable: pip3
+  when: not stat_supervisord.stat.exists
+
+- name: create supervisor config directory
+  file:
+    path: /opt/etc/supervisord.d
+    state: directory
+
+- name: create supervisor log directory
+  file:
+    path: /opt/var/log/supervisord
+    state: directory
+
+- name: create supervisor config file
+  template:
+    src: supervisord.conf
+    dest: /opt/etc/supervisord.conf
+    mode: 0644
+  notify: restart wrt service supervisord
+
+- name: create supervisor startup script
+  copy:
+    src: supervisord.rc.sh
+    dest: /opt/etc/init.d/{{ wrt_supervisor_initd }}
+    mode: 0755
+    force: true
+  notify: restart wrt service supervisord
+
+- name: enable wrt service supervisord
+  openwrt_init2:
+    name: "{{ wrt_supervisor_initd }}"
+    state: started
+  tags: skip_ansible_lint
 ...

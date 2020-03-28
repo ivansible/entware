@@ -4,9 +4,8 @@
 [![Travis Test Status](https://travis-ci.org/ivansible/wrt-supervisor.svg?branch=master)](https://travis-ci.org/ivansible/wrt-supervisor)
 [![Ansible Galaxy](https://img.shields.io/badge/galaxy-ivansible.wrt__supervisor-68a.svg?style=flat)](https://galaxy.ansible.com/ivansible/wrt_supervisor/)
 
-This role will:
- - action1;
- - action2;
+This role installs [supervisor](http://supervisord.org/) service manager
+on Keenetic routers.
 
 
 ## Requirements
@@ -16,16 +15,18 @@ None
 
 ## Variables
 
-Available variables are listed below, along with default values.
+    wrt_use_supervisor: false
+Enables installation of supervisor. Role is skipped if this is false.
+This flag is also indirectly used by other _wrt_ roles.
+You may want to disable supervisor since it's memory hungry.
 
-    variable1: 1
-    variable2: 2
+    wrt_supervisor_port: 9001
+Supervisor will listen for control commands on this localhost port.
 
 
 ## Tags
 
-- `role1_tag1` -- action1
-- `role1_tag2` -- action2
+- `wrt_supervisor_all` -- all tasks
 
 
 ## Dependencies
@@ -35,11 +36,10 @@ None
 
 ## Example Playbook
 
-    - hosts: vagrant-boxes
+    - hosts: keenetic
       roles:
-         - role: wrt_supervisor
-           variable1: 1
-           variable2: 2
+         - role: ivansible.wrt_supervisor
+           wrt_use_supervisor: true
 
 
 ## License

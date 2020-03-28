@@ -1,5 +1,64 @@
 ---
-- name: root task1
-  debug:
-    msg: task1
+- name: install yggdrasil packages
+  opkg:
+    name: yggdrasil-go
+  tags: wrt_ygg_install
+
+- name: directory for yggdrasil configs
+  file:
+    path: /opt/etc/yggdrasil
+    state: directory
+  tags: wrt_ygg_install
+
+- name: create yggdrasil startup script
+  copy:
+    src: yggdrasil.rc.sh
+    dest: /opt/etc/init.d/{{ wrt_ygg_initd }}
+    mode: 0755
+    force: true
+  register: ygg_startup_result
+  tags: wrt_ygg_install
+
+- name: update yggdrasil configuration
+  template:
+    src: yggdrasil.conf
+    dest: /opt/etc/yggdrasil/yggdrasil.conf
+    mode: 0640
+    backup: "{{ wrt_ygg_backups |bool }}"
+  vars:
+    local_name: "{{ inventory_hostname }}"
+    local_alias: "{{ wrt_ygg_alias |default(local_name, true) }}"
+    local_ipv6: "{{ wrt_ygg_ipv6 |default('') }}"
+    local_pub: "{{ wrt_ygg_pub }}"
+    local_key: "{{ wrt_ygg_key }}"
+    local_sig_pub: "{{ wrt_ygg_sig_pub |default('',true) }}"
+    local_sig_key: "{{ wrt_ygg_sig_key |default('',true) }}"
+    sig_enable: "{{ wrt_ygg_sig_enable |default(true) |bool }}"
+    group_name: "{{ wrt_ygg_peer_group }}"
+    peer_group: "{{ groups[group_name] |sort if group_name else none }}"
+    peer_catalog: "{{ wrt_ygg_peer_catalog |default(false) |bool }}"
+    allowed_pubs: "{{ wrt_ygg_allowed_pubs |default([],true) }}"
+    local_admin_port: "{{ wrt_ygg_admin_port |default(9001) |int }}"
+    local_tcp_port: "{{ wrt_ygg_tcp_port |default(0,true) |int }}"
+    local_tls_port: "{{ wrt_ygg_tls_port |default(0,true) |int }}"
+    local_peers: "{{ wrt_ygg_peers |default([],true) }}"
+    local_socks: "{{ wrt_ygg_socks |default('',true) }}"
+    local_routing: "{{ wrt_ygg_routing |default(false) |bool }}"
+    local_subnets: "{{ wrt_ygg_subnets |default([],true) }}"
+    local_ifname: "{{ wrt_ygg_ifname |string }}"
+    local_mtu: "{{ wrt_ygg_mtu |int }}"
+  register: ygg_config_result
+  become: true
+  tags: wrt_ygg_config
+
+- name: enable/restart wrt service yggdrasil
+  openwrt_init2:
+    name: "{{ wrt_ygg_initd }}"
+    state: "{{ 'restarted' if ygg_changed else 'started' }}"
+  vars:
+    ygg_changed: "{{ ygg_config_result |default({}) is changed
+                  or ygg_startup_result |default({}) is changed }}"
+  tags:
+    - skip_ansible_lint
+    - wrt_ygg_config
 ...

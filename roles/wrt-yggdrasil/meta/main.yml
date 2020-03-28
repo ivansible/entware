@@ -1,5 +1,6 @@
 ---
-dependencies: []
+dependencies:
+  - ivansible.wrt_net
 
 galaxy_info:
   role_name: wrt_yggdrasil
@@ -10,14 +11,15 @@ galaxy_info:
   min_ansible_version: 2.5
 
   platforms:
-    - name: Ubuntu
+    - name: GenericLinux
       versions:
-        - xenial
-        - bionic
+        - any
 
   galaxy_tags:
-    - linux
-    - ansible
+    - keenetic
+    - entware
+    - yggdrasil
+    - vpn
 
   github_branch: master
 ...

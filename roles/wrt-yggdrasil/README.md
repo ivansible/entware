@@ -37,7 +37,7 @@ None
 
     - hosts: vagrant-boxes
       roles:
-         - role: wrt_yggdrasil
+         - role: ivansible.wrt_yggdrasil
            variable1: 1
            variable2: 2
 

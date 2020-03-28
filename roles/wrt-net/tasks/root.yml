@@ -1,5 +1,66 @@
 ---
-- name: root task1
-  debug:
-    msg: task1
+- name: install routing packages
+  opkg:
+    name: "{{ wrt_net_packages |join(',') }}"
+
+- name: create service script for net routing
+  copy:
+    src: fixrouting.sh
+    dest: /opt/usr/bin/fixrouting
+    mode: 0750
+    force: true
+  notify: restart wrt service routing
+
+- name: create routing startup script
+  copy:
+    src: net-initd.sh
+    dest: /opt/etc/init.d/{{ wrt_net_initd }}
+    mode: 0755
+    force: true
+  notify: restart wrt service routing
+
+- name: create net config directory
+  file:
+    path: /opt/etc/net
+    state: directory
+
+- name: update configuration
+  template:
+    src: config.j2
+    dest: /opt/etc/net/config
+  notify: restart wrt service routing
+
+- name: update static routes
+  template:
+    src: static-routes.j2
+    dest: /opt/etc/net/routes
+  notify: restart wrt service routing
+
+- name: update dynamic routes
+  template:
+    src: dynamic-routes.j2
+    dest: /opt/etc/net/spidr
+  notify: restart wrt service routing
+
+- name: enable wrt service routing
+  openwrt_init2:
+    name: "{{ wrt_net_initd }}"
+    state: started
+  tags: skip_ansible_lint
+
+- name: upload netfilter scripts
+  copy:
+    src: "nf-if-{{ item }}.sh"
+    dest: "/opt/usr/sbin/nf-if-{{ item }}"
+    mode: 0755
+    force: true
+  loop: [open, nat6]
+  notify: restart wrt service routing
+
+- name: create netfilter hooks
+  include_tasks: netfilter.yml
+  vars:
+    hooks: "{{ hooks_open + hooks_nat6 }}"
+    hooks_open: "{{ wrt_net_ifs_open |map('regex_replace','$','.open') |list }}"
+    hooks_nat6: "{{ wrt_net_ifs_nat6 |map('regex_replace','$','.nat6') |list }}"
 ...

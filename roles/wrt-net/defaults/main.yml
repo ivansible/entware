@@ -1,3 +1,30 @@
 ---
 # defaults for ivansible.wrt_net
+
+wrt_net_routes: ~             # list of routes
+#  - name: route name          # optional route comment
+#    dst: fd00:99::/48         # single address or list of target addresses
+#    via:                      # single address ot list of gateway addresses
+#      - ^:42b0:76ff:fe0a:fc8  # '^' will be replaced by ipv6 prefix
+
+wrt_net_route_metric: 256
+wrt_net_prefix_iface: ISP
+
+wrt_net_timeout: 1
+wrt_net_interval: 60
+
+wrt_net_lo_iface: lo
+wrt_net_lo_ipv4: ~
+wrt_net_lo_ipv6: ~
+
+wrt_net_ifs_open: []
+wrt_net_ifs_nat6: []
+
+wrt_net_initd: S32net
+
+wrt_net_packages:
+  - bash
+  - gawk
+  - ndmq
+  - xmlstarlet
 ...

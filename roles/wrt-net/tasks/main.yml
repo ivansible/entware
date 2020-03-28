@@ -1,6 +1,9 @@
 ---
-- name: become root and install role
+- name: become root and setup network routing
   import_tasks: root.yml
   become: true
-  tags: role_all
+  tags: wrt_net_all
+
+- name: run postponed handlers now
+  meta: flush_handlers
 ...

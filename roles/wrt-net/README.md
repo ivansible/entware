@@ -4,9 +4,7 @@
 [![Travis Test Status](https://travis-ci.org/ivansible/wrt-net.svg?branch=master)](https://travis-ci.org/ivansible/wrt-net)
 [![Ansible Galaxy](https://img.shields.io/badge/galaxy-ivansible.wrt__net-68a.svg?style=flat)](https://galaxy.ansible.com/ivansible/wrt_net/)
 
-This role will:
- - action1;
- - action2;
+This role configures dynamic routing on keenetic entware.
 
 
 ## Requirements
@@ -16,16 +14,16 @@ None
 
 ## Variables
 
-Available variables are listed below, along with default values.
+    wrt_net_ifs_open: []
+List of interface names to be open in netfilter for input and forward.
 
-    variable1: 1
-    variable2: 2
+    wrt_net_ifs_nat6: []
+List of network interfaces to setup IPv6 NAT from local prefix.
 
 
 ## Tags
 
-- `role1_tag1` -- action1
-- `role1_tag2` -- action2
+- `wrt_net_all` -- all tasks
 
 
 ## Dependencies
@@ -35,11 +33,10 @@ None
 
 ## Example Playbook
 
-    - hosts: vagrant-boxes
+    - hosts: entware
       roles:
-         - role: wrt_net
-           variable1: 1
-           variable2: 2
+         - role: ivansible.wrt_net
+           var: val
 
 
 ## License

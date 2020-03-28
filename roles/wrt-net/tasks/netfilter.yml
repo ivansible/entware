@@ -1,0 +1,15 @@
+---
+- name: "create netfilter hooks: {{ hooks |join(' ') }}"
+  ## make all links in a single loop for speed and less clutter in ansible logs
+  shell:
+    cmd: |
+      {% for item in hooks %}
+      {%   set link = item.strip() %}
+      {%   set type = link.split('.') |last %}
+        test -e /opt/etc/ndm/netfilter.d/{{ link }} || echo "{{ link }} changed"
+        ln -sf /opt/usr/sbin/nf-if-{{ type }} /opt/etc/ndm/netfilter.d/{{ link }}
+      {% endfor %}
+  register: cmd_result
+  changed_when: cmd_result.stdout is search('changed')
+  notify: restart wrt service routing
+...

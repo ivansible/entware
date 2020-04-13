@@ -24,11 +24,11 @@ wrt_shell_aliases:
   rmf: rm -f
   rmr: rm -rf
   t: tail
-  tf: tail -f
+  tt: tail -f
   v: vim
   wl: wc -l
   sc: supervisorctl
-  tt: tmux attach
+  ttt: tmux attach
 
 wrt_core_packages:
   ## essential packages

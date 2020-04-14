@@ -3,26 +3,31 @@
 
 PATH=/opt/sbin:/opt/bin:/opt/usr/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
-prefix_iface=ISP
+prefix_dev=br0
+prefix_len=64
+nat6_recheck_module=1
 
 . /opt/etc/net/config
 
 setup_netfilter_nat6()
 {
-    lsmod | grep -q ip6table_nat
+    lsmod 2>/dev/null | grep -q ip6table_nat
     if [ $? != 0 ]; then
-        moddir=/lib/modules/4.9-ndm-4
-        insmod $moddir/nf_nat_ipv6.ko
-        insmod $moddir/ip6table_nat.ko
-        insmod $moddir/nf_nat_masquerade_ipv6.ko
-        insmod $moddir/ip6t_MASQUERADE.ko
+        MOD_DIR=/lib/modules/4.9-ndm-4
+        insmod $MOD_DIR/nf_nat_ipv6.ko
+        insmod $MOD_DIR/ip6table_nat.ko
+        insmod $MOD_DIR/nf_nat_masquerade_ipv6.ko
+        insmod $MOD_DIR/ip6t_MASQUERADE.ko
     fi
 }
 
 detect_prefix_full()
 {
-    ndmq -x -p 'show ipv6 prefix' |
-        xml sel -t -m "/response/prefix[interface='$prefix_iface']" -v prefix |
+    ip -o -6 route show |
+        egrep -v '^ff00|^fe80' |
+        grep "dev ${prefix_dev}" |
+        awk '{print $1}' |
+        grep ":/${prefix_len}" |
         head -1
 }
 
@@ -33,9 +38,10 @@ ip4rules()
 
 ip6rules()
 {
-    setup_netfilter_nat6
+    [ $nat6_recheck_module = 1 ] && setup_netfilter_nat6
     prefix_cidr=$(detect_prefix_full)
-    ip6tables -t nat -A POSTROUTING -s "$prefix_cidr" -o "$device" -j MASQUERADE
+    ip6tables --wait --table nat --append POSTROUTING \
+              --source "$prefix_cidr" --out-interface "$device" --jump MASQUERADE
 }
 
 parse_args()

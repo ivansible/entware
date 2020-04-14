@@ -20,6 +20,13 @@ List of interface names to be open in netfilter for input and forward.
     wrt_net_ifs_nat6: []
 List of network interfaces to setup IPv6 NAT from local prefix.
 
+    wrt_net_prefix_dev: br0
+    wrt_net_prefix_len: 64
+These settings affect the IPv6 prefix detector (based on the iproute2 `ip` command).
+The `dev` setting limits prefixes to those with given network device.
+The `len` setting limits prefixes to those with given prefix length.
+Out of remaining prefixes, the first one will be used.
+
 
 ## Tags
 

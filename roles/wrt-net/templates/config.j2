@@ -1,7 +1,9 @@
 interval={{ wrt_net_interval }}
 timeout={{ wrt_net_timeout }}
-prefix_iface={{ wrt_net_prefix_iface }}
+prefix_dev={{ wrt_net_prefix_dev }}
+prefix_len={{ wrt_net_prefix_len }}
 metric={{ wrt_net_route_metric }}
-lo_iface={{ wrt_net_lo_iface }}
+lo_dev={{ wrt_net_lo_dev }}
 lo_ipv4={{ wrt_net_lo_ipv4 }}
 lo_ipv6={{ wrt_net_lo_ipv6 }}
+nat6_recheck_module={{ wrt_net_nat6_recheck |bool |ternary(1,0) }}

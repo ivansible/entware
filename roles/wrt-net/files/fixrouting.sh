@@ -3,9 +3,10 @@
 
 interval=60
 timeout=1
-prefix_iface=ISP
+prefix_dev=br0
+prefix_len=64
 metric=256
-lo_iface=lo
+lo_dev=lo
 lo_ipv4=""
 lo_ipv6=""
 
@@ -15,12 +16,19 @@ PATH=/opt/sbin:/opt/bin:/opt/usr/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 declare -A selections
 
+detect_prefix_full()
+{
+    ip -o -6 route show |
+        egrep -v '^ff00|^fe80' |
+        grep "dev ${prefix_dev}" |
+        awk '{print $1}' |
+        grep ":/${prefix_len}" |
+        head -1
+}
+
 detect_prefix()
 {
-    ndmq -x -p 'show ipv6 prefix' |
-        xml sel -t -m "/response/prefix[interface='$prefix_iface']" -v prefix |
-        sed -r 's!:*(/[0-9]*)?$!!' |
-        head -1
+    detect_prefix_full | sed -r 's!:*(/[0-9]*)?$!!'
 }
 
 set_static_routes()
@@ -88,8 +96,8 @@ run_netfilter_hooks()
 
 set_loopback_addr()
 {
-    [ -n "$lo_iface" ] && [ -n "$lo_ipv4" ] && ip -4 addr replace "$lo_ipv4" dev "$lo_iface"
-    [ -n "$lo_iface" ] && [ -n "$lo_ipv6" ] && ip -6 addr replace "$lo_ipv6" dev "$lo_iface"
+    [ -n "$lo_dev" ] && [ -n "$lo_ipv4" ] && ip -4 addr replace "$lo_ipv4" dev "$lo_dev"
+    [ -n "$lo_dev" ] && [ -n "$lo_ipv6" ] && ip -6 addr replace "$lo_ipv6" dev "$lo_dev"
 }
 
 boot()

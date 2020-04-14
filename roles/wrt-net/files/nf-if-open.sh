@@ -5,18 +5,18 @@ PATH=/opt/sbin:/opt/bin:/opt/usr/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 ip4rules()
 {
-    iptables -I INPUT   -i "$device" -j ACCEPT
-    iptables -I OUTPUT  -o "$device" -j ACCEPT
-    iptables -I FORWARD -i "$device" -j ACCEPT
-    iptables -I FORWARD -o "$device" -j ACCEPT
+    iptables --wait --insert INPUT   -i "$device" --jump ACCEPT
+    iptables --wait --insert OUTPUT  -o "$device" --jump ACCEPT
+    iptables --wait --insert FORWARD -i "$device" --jump ACCEPT
+    iptables --wait --insert FORWARD -o "$device" --jump ACCEPT
 }
 
 ip6rules()
 {
-    ip6tables -I INPUT   -i "$device" -j ACCEPT
-    ip6tables -I OUTPUT  -o "$device" -j ACCEPT
-    ip6tables -I FORWARD -i "$device" -j ACCEPT
-    ip6tables -I FORWARD -o "$device" -j ACCEPT
+    ip6tables --wait --insert INPUT   -i "$device" --jump ACCEPT
+    ip6tables --wait --insert OUTPUT  -o "$device" --jump ACCEPT
+    ip6tables --wait --insert FORWARD -i "$device" --jump ACCEPT
+    ip6tables --wait --insert FORWARD -o "$device" --jump ACCEPT
 }
 
 parse_args()

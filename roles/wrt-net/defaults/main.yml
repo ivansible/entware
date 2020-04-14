@@ -8,17 +8,21 @@ wrt_net_routes: ~             # list of routes
 #      - ^:42b0:76ff:fe0a:fc8  # '^' will be replaced by ipv6 prefix
 
 wrt_net_route_metric: 256
-wrt_net_prefix_iface: ISP
+
+wrt_net_prefix_dev: br0
+wrt_net_prefix_len: 64
 
 wrt_net_timeout: 1
 wrt_net_interval: 60
 
-wrt_net_lo_iface: lo
+wrt_net_lo_dev: lo
 wrt_net_lo_ipv4: ~
 wrt_net_lo_ipv6: ~
 
 wrt_net_ifs_open: []
 wrt_net_ifs_nat6: []
+
+wrt_net_nat6_recheck: false
 
 wrt_net_initd: S32net
 

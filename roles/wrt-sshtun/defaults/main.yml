@@ -1,6 +1,8 @@
 ---
 # defaults for ivansible.wrt_sshtun
 
+wrt_sshtun_enable: true
+
 wrt_sshtun_default_server: default
 
 wrt_sshtun_servers: []

@@ -2,7 +2,8 @@
 - name: setup ssh tun client as root
   import_tasks: root.yml
   become: true
-  when: wrt_sshtun_servers |default([])
+  when: wrt_sshtun_enable |bool
+        and wrt_sshtun_servers |default([])
         and wrt_sshtun_default_server |default('')
   tags: wrt_sshtun_all
 

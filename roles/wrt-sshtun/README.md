@@ -17,6 +17,9 @@ None
 
 ## Variables
 
+    wrt_sshtun_enable: true
+If this flag is false, the role will be skipped.
+
     wrt_sshtun_ssh_port: 22
 Default SSH port on server to connect to. Peers can override it.
 Note: there is no default host name, it must be specified for every peer.

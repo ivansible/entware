@@ -4,7 +4,7 @@
 #
 #set -x
 
-DEVICE={{ wrt_wg_iface }}
+DEVICE={{ wrt_wg_dev }}
 {% if wrt_wg_prefer_userspace |bool %}
 export WG_QUICK_PREFER_USERSPACE=true
 {% endif %}

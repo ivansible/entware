@@ -1,7 +1,7 @@
 ---
 # defaults for ivansible.wrt_wireguard
 
-wrt_wg_iface: wg0
+wrt_wg_dev: wg0
 wrt_wg_port: 0
 
 wrt_wg_default_net: default

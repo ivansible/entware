@@ -51,7 +51,7 @@
     port: "{{ net.port |default(wrt_wg_port, true) |default(0,true) |int }}"
     mtu: "{{ net.mtu |default(wrt_wg_mtu, true) |default(0,true) |int }}"
     keepalive: "{{ net.keepalive |default(wrt_wg_keepalive, true) |default(0,true) |int }}"
-    iface: "{{ wrt_wg_iface }}"
+    dev: "{{ wrt_wg_dev }}"
     peers: "{{ net.peers }}"
     metric: ~
   loop: "{{ wrt_wg_nets |default([],true) }}"
@@ -70,7 +70,7 @@
 - name: update symlink for default wireguard net
   file:
     state: link
-    dest: "/opt/etc/wireguard/{{ wrt_wg_iface }}.conf"
+    dest: "/opt/etc/wireguard/{{ wrt_wg_dev }}.conf"
     src: "{{ wrt_wg_default_net }}.conf"
   notify: restart wrt service wireguard
   tags: wrt_wg_config

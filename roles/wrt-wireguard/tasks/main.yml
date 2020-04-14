@@ -19,7 +19,7 @@
         - wrt_wireguard_all
   vars:
     hooks:
-      - "{{ wrt_wg_iface }}.open"
+      - "{{ wrt_wg_dev }}.open"
   tags:
     - wrt_wg_netfilter
     - wrt_wg_all

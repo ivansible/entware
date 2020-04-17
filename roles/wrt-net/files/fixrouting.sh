@@ -66,7 +66,7 @@ update_dynamic_routes()
             continue
         fi
         selections["$via_list"]="$via"
-        logger -t net "net: ipv6 route '${comment//_/ }' via ${via}"
+        logger -t net "net: route '${comment//_/ }' via ${via}"
 
         for dst in ${dst_list//,/ } ; do
             dst="${dst/^/$prefix}"

@@ -49,11 +49,10 @@
   tags: skip_ansible_lint
 
 - name: upload netfilter scripts
-  copy:
+  template:
     src: "nf-if-{{ item }}.sh"
     dest: "/opt/usr/sbin/nf-if-{{ item }}"
     mode: 0755
-    force: true
   loop: [open, nat6]
   notify: restart wrt service routing
 

@@ -62,4 +62,24 @@
     hooks: "{{ hooks_open + hooks_nat6 }}"
     hooks_open: "{{ wrt_net_ifs_open |map('regex_replace','$','.open') |list }}"
     hooks_nat6: "{{ wrt_net_ifs_nat6 |map('regex_replace','$','.nat6') |list }}"
+
+- name: amend firewall rules
+  template:
+    src: nf-if-rules.sh
+    dest: "/opt/etc/ndm/netfilter.d/{{ filename }}.rules"
+    mode: 0755
+  when: rules |default([])
+  loop: "{{ wrt_net_firewall |default({},true) |dictsort }}"
+  loop_control:
+    label: "{{ item.0 }}"
+  vars:
+    device: "{{ item.0 }}"
+    filename: "{{ device |lower |regex_replace('[^0-9a-z]+','_') }}"
+    s_chain: "_RULES_{{ filename |upper }}"
+    n_chain: "RULES_{{ filename |upper }}"
+    rules: "{{ item.1.rules |default([],true) }}"
+    apply_std_rules: "{{ item.1.apply_std_rules |default(true) |bool }}"
+    domain: "{{ item.1.domain |default('inet',true) }}"
+    first: "{{ item.1.first |default(false) |bool }}"
+  notify: restart wrt service routing
 ...

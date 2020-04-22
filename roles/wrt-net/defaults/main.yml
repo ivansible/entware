@@ -19,7 +19,9 @@ wrt_net_firewall: ~            # map of devices with rules
 #        permit: false               # permit or deny packet (default: false)
 #        first: false                # whether rule should be first in chain (default: false)
 #    apply_std_rules: true     # whether to apply standard rules (default: true)
-#    first: false              # whether chain should be first in netfilter (default: false)
+#    direct: true              # add rules in the dedicated chain (false)
+#                              # or directly in the INPUT chain (default: direct)
+#    first: false              # whether chain/rules will be first in netfilter (default: false)
 
 wrt_net_route_metric: 256
 
@@ -37,6 +39,8 @@ wrt_net_ifs_open: []
 wrt_net_ifs_nat6: []
 
 wrt_net_nat6_recheck: false
+wrt_net_firewall_default_direct: true
+wrt_net_netfilter_hooks_put_first: false
 
 wrt_net_initd: S32net
 

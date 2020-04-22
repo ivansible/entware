@@ -1,7 +1,8 @@
 {% extends "nf-if-script.sh" %}
 {% block rules %}
-    nf inet -I INPUT   -i "$device" -j ACCEPT
-    nf inet -I OUTPUT  -o "$device" -j ACCEPT
-    nf inet -I FORWARD -i "$device" -j ACCEPT
-    nf inet -I FORWARD -o "$device" -j ACCEPT
+{% set put = wrt_net_netfilter_hooks_put_first |bool |ternary('-I','-A') %}
+    nf inet {{ put }} INPUT   -i "$device" -j ACCEPT
+    nf inet {{ put }} OUTPUT  -o "$device" -j ACCEPT
+    nf inet {{ put }} FORWARD -i "$device" -j ACCEPT
+    nf inet {{ put }} FORWARD -o "$device" -j ACCEPT
 {% endblock %}

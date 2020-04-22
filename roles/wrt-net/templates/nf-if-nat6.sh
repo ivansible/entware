@@ -1,8 +1,9 @@
 {% extends "nf-if-script.sh" %}
 {% block rules %}
+{% set put = wrt_net_netfilter_hooks_put_first |bool |ternary('-I','-A') %}
     [ $nat6_recheck_module = 1 ] && setup_netfilter_nat6
     prefix_cidr=$(detect_prefix_full)
-    nf ipv6 -t nat -A POSTROUTING -s "$prefix_cidr" -o "$device" -j MASQUERADE
+    nf ipv6 -t nat {{ put }} POSTROUTING -s "$prefix_cidr" -o "$device" -j MASQUERADE
 {% endblock %}
 {% block init %}
 DEVICE=""

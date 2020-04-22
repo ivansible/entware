@@ -75,11 +75,14 @@
   vars:
     device: "{{ item.0 }}"
     filename: "{{ device |lower |regex_replace('[^0-9a-z]+','_') }}"
-    s_chain: "_RULES_{{ filename |upper }}"
-    n_chain: "RULES_{{ filename |upper }}"
-    rules: "{{ item.1.rules |default([],true) }}"
-    apply_std_rules: "{{ item.1.apply_std_rules |default(true) |bool }}"
-    domain: "{{ item.1.domain |default('inet',true) }}"
-    first: "{{ item.1.first |default(false) |bool }}"
+    props: "{{ item.1 }}"
+    rules: "{{ props.rules |default([],true) }}"
+    apply_std_rules: "{{ props.apply_std_rules |default(true) |bool }}"
+    domain: "{{ props.domain |default('inet',true) }}"
+    first: "{{ props.first |default(false) |bool }}"
+    direct: "{{ props.direct |default(wrt_net_firewall_default_direct) |bool }}"
+    s_chain: "{{ 'INPUT' if direct else '_RULES_' + filename |upper }}"
+    n_chain: "{{ 'INPUT' if direct else 'RULES_' + filename |upper }}"
+    device_c: "{{ ' -i ' + device if direct else '' }}"
   notify: restart wrt service routing
 ...

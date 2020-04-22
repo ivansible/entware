@@ -1,4 +1,19 @@
 ---
+- name: install ssh moduli
+  ## fixes openssh warning "could not open /opt/etc/ssh/moduli, using fixed modulus"
+  ## see:
+  ## https://security.stackexchange.com/questions/79043/is-it-considered-worth-it-to-replace-opensshs-moduli-file
+  ## https://www.linode.com/docs/security/advanced-ssh-server-security/
+  ## https://github.com/openssh/openssh-portable/blob/master/moduli
+  copy:
+    ## downloaded on 2020-04-22 from:
+    ## https://raw.githubusercontent.com/openssh/openssh-portable/master/moduli
+    src: ssh-moduli
+    dest: /opt/etc/ssh/moduli
+    force: true
+    mode: 0644
+  notify: restart wrt service ssh
+
 - name: tweak ssh server settings
   lineinfile:
     path: /opt/etc/ssh/sshd_config

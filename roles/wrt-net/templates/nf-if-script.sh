@@ -42,9 +42,27 @@ nf()
             msg=""
             [ $ret = 0 ] && break
             [ $quiet = 1 ] && continue
+
             time=$(date '+%Y-%m-%d %H:%M:%S')
-            out=$(echo "$out" |head -1)
-            msg="[$time] retry $table $prog ($ret) cmd: \"$cmd $*\" err: \"$out\""
+            case "$out" in
+              *'Resource temporarily unavailable'* )
+                err=EAGAIN
+                ;;
+              *'Invalid argument'* )
+                err=EINVAL
+                ;;
+              *'No chain/target'* | *'No such file'* )
+                err="\"$(echo "$out" |head -1)\""
+                msg="[$time] FATAL: $table $prog ($ret) cmd: \"$cmd $*\" err: $err"
+                echo "$msg" >> $LOG
+                echo "$msg" 1>&2
+                exit 1
+                ;;
+              *)
+                err="\"$(echo "$out" |head -1)\""
+                ;;
+            esac
+            msg="[$time] retry $table $prog ($ret) cmd: \"$cmd $*\" err: $err"
             echo "$msg" >> $LOG
         done
         [ -z "$msg" ] || echo "$msg" 1>&2

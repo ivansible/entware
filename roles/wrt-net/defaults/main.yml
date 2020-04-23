@@ -9,19 +9,20 @@ wrt_net_routes: ~              # list of routes
 
 wrt_net_firewall: ~            # map of devices with rules
 #  DEV1:                       # device name
-#    domain: ipv4|ipv6|inet    # default domain for rules (default: inet)
-#    rules:                    # list of firewall rules for device
-#      - domain: ipv4|ipv6|inet      # rule domain: IPv4, IPv6 or both (default: both)
-#        proto: tcp/udp/any          # protocol: tcp, udp or any (default: any)
-#        src: IPV4/IPV6              # source IP address (optional)
-#        dst: IPV4/IPV6              # destination IP address (optional)
-#        port: PORT[-RANGE][/PROTO]  # single port or range (optional)
-#        permit: false               # permit or deny packet (default: false)
-#        first: false                # whether rule should be first in chain (default: false)
-#    apply_std_rules: true     # whether to apply standard rules (default: true)
-#    direct: true              # add rules in the dedicated chain (false)
+#    in|out|fwd:               # short name of netfilter chain (INPUT, OUTPUT, FORWARD)
+#      domain: ipv4|ipv6|inet  # default domain for rules (default: inet)
+#      rules:                  # list of firewall rules for device
+#        - domain: ipv4|ipv6|inet      # rule domain: IPv4, IPv6 or both (default: both)
+#          proto: tcp/udp/any          # protocol: tcp, udp or any (default: any)
+#          src: IPV4/IPV6              # source IP address (optional)
+#          dst: IPV4/IPV6              # destination IP address (optional)
+#          port: PORT[-RANGE][/PROTO]  # single port or range (optional)
+#          permit: false               # permit or deny packet (default: false)
+#          first: false                # whether rule should be first in chain (default: false)
+#      apply_std_rules: true   # whether to apply standard rules (default: true)
+#      direct: true            # add rules in the dedicated chain (false)
 #                              # or directly in the INPUT chain (default: direct)
-#    first: false              # whether chain/rules will be first in netfilter (default: false)
+#      first: false            # whether chain/rules will be first in netfilter (default: false)
 
 wrt_net_route_metric: 256
 

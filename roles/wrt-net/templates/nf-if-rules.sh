@@ -61,9 +61,9 @@ DEVICE={{ device }}
 {%     endfor %}
 {%   endif %}
 {%   if not direct %}
-    nf {{ domain }} {{ put_chain }} INPUT -i {{ device }} -j {{ s_chain }}
+    nf {{ domain }} {{ put_chain }} {{ f_chain }} -i {{ device }} -j {{ s_chain }}
 {%   endif %}
 {% elif not direct  %}
-    nf {{ domain }} {{ put_chain }} INPUT -i {{ device }} -j {{ n_chain }}
+    nf {{ domain }} {{ put_chain }} {{ f_chain }} -i {{ device }} -j {{ n_chain }}
 {% endif %}
 {% endblock %}

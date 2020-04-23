@@ -30,6 +30,10 @@ Out of remaining prefixes, the first one will be used.
 
 ## Tags
 
+- `wrt_net_packages` -- install routing packages
+- `wrt_net_routing` -- update static/dynamic routes
+- `wrt_net_hooks` -- create netfilter hooks
+- `wrt_net_firewall` -- amend firewall rules
 - `wrt_net_all` -- all tasks
 
 

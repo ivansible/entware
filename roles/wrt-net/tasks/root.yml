@@ -2,6 +2,7 @@
 - name: install routing packages
   opkg:
     name: "{{ wrt_net_packages |join(',') }}"
+  tags: wrt_net_packages
 
 - name: create service script for net routing
   copy:
@@ -10,6 +11,7 @@
     mode: 0750
     force: true
   notify: restart wrt service routing
+  tags: wrt_net_routing
 
 - name: create routing startup script
   copy:
@@ -18,35 +20,42 @@
     mode: 0755
     force: true
   notify: restart wrt service routing
+  tags: wrt_net_routing
 
 - name: create net config directory
   file:
     path: /opt/etc/net
     state: directory
+  tags: wrt_net_routing
 
 - name: update configuration
   template:
     src: config.j2
     dest: /opt/etc/net/config
   notify: restart wrt service routing
+  tags: wrt_net_routing
 
 - name: update static routes
   template:
     src: static-routes.j2
     dest: /opt/etc/net/routes
   notify: restart wrt service routing
+  tags: wrt_net_routing
 
 - name: update dynamic routes
   template:
     src: dynamic-routes.j2
     dest: /opt/etc/net/spidr
   notify: restart wrt service routing
+  tags: wrt_net_routing
 
 - name: enable wrt service routing
   openwrt_init2:
     name: "{{ wrt_net_initd }}"
     state: started
-  tags: skip_ansible_lint
+  tags:
+    - skip_ansible_lint
+    - wrt_net_routing
 
 - name: upload netfilter scripts
   template:
@@ -55,6 +64,7 @@
     mode: 0755
   loop: [open, nat6]
   notify: restart wrt service routing
+  tags: wrt_net_hooks
 
 - name: create netfilter hooks
   include_tasks: netfilter.yml
@@ -62,27 +72,37 @@
     hooks: "{{ hooks_open + hooks_nat6 }}"
     hooks_open: "{{ wrt_net_ifs_open |map('regex_replace','$','.open') |list }}"
     hooks_nat6: "{{ wrt_net_ifs_nat6 |map('regex_replace','$','.nat6') |list }}"
+  tags: wrt_net_hooks
 
 - name: amend firewall rules
   template:
     src: nf-if-rules.sh
-    dest: "/opt/etc/ndm/netfilter.d/{{ filename }}.rules"
+    dest: "{{ rules_dir }}/{{ filename }}.rules"
     mode: 0755
   when: rules |default([])
-  loop: "{{ wrt_net_firewall |default({},true) |dictsort }}"
+  loop: "{{ (wrt_net_firewall |default({},true)).keys()
+          | sort | product(['in', 'out', 'fwd']) | list }}"
   loop_control:
-    label: "{{ item.0 }}"
+    label: "{{ item.0 }}/{{ item.1 }}"
   vars:
     device: "{{ item.0 }}"
-    filename: "{{ device |lower |regex_replace('[^0-9a-z]+','_') }}"
-    props: "{{ item.1 }}"
+    device_c: "{{ ' -i ' + device if direct else '' }}"
+
+    filename: "{{ device |lower |regex_replace('[^0-9a-z]+','_') + '_' + item.1 }}"
+    rules_dir: /opt/etc/ndm/netfilter.d
+    # rules_dir: /opt/tmp
+
+    std_chains: {in: INPUT, out: OUTPUT, fwd: FORWARD}
+    f_chain: "{{ std_chains[item.1] |upper }}"
+    s_chain: "{{ f_chain if direct else '_RULES_' + filename |upper }}"
+    n_chain: "{{ f_chain if direct else 'RULES_' + filename |upper }}"
+    direct: "{{ props.direct |default(wrt_net_firewall_default_direct) |bool }}"
+
+    props: "{{ wrt_net_firewall[item.0][item.1] |default({}) }}"
     rules: "{{ props.rules |default([],true) }}"
     apply_std_rules: "{{ props.apply_std_rules |default(true) |bool }}"
     domain: "{{ props.domain |default('inet',true) }}"
     first: "{{ props.first |default(false) |bool }}"
-    direct: "{{ props.direct |default(wrt_net_firewall_default_direct) |bool }}"
-    s_chain: "{{ 'INPUT' if direct else '_RULES_' + filename |upper }}"
-    n_chain: "{{ 'INPUT' if direct else 'RULES_' + filename |upper }}"
-    device_c: "{{ ' -i ' + device if direct else '' }}"
   notify: restart wrt service routing
+  tags: wrt_net_firewall
 ...

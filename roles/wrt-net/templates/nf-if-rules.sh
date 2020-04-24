@@ -18,7 +18,9 @@ DEVICE={{ device }}
 {%   set src_c = ' -s %s' % src if src else '' %}
 {%   set dst_c = ' -d %s' % dst if dst else '' %}
 {%   set proto_s = r.proto |default('inet',true) %}
-{%   set port_val = r.port |default('') %}
+{%   set sport = r.sport |default(0) |int %}
+{%   set sport_c = ' --sport %d' % sport if sport else '' %}
+{%   set port_val = r.dport |default(r.port) |default('') %}
 {%   set port_str = port_val |string
                     if port_val is string or port_val is integer
                     else port_val |flatten |join(',') %}
@@ -26,19 +28,21 @@ DEVICE={{ device }}
 {%     set port_s = port_tok.strip() %}
 {%     set dport = port_s.split('/').0 if '/' in port_s else port_s %}
 {%     set dport_c = ' --dport %s' % dport.replace('-',':') if dport else '' %}
-{%     set cond = src_c + dst_c + dport_c %}
+{%     set cond = src_c + dst_c + sport_c + dport_c %}
 {%     set proto = port_s.split('/').1 if '/' in port_s else proto_s %}
 {%     set r_domain = r.domain |default(domain, true) %}
 {%     if (domain == r_domain or 'inet' in [domain, r_domain])
-          and r_domain in ['ipv4', 'ipv6', 'inet'] %}
+          and r_domain in ['ipv4', 'ipv6', 'inet']
+          and domain in ['ipv4', 'ipv6', 'inet'] %}
+{%       set c_domain = r_domain if domain == 'inet' else domain %}
 {%       if proto in ['inet', 'any'] %}
-    nf {{ r_domain }} {{ put }} {{ n_chain }}{{ device_c }} -p tcp -m tcp{{ cond }} -j {{ verdict }}
-    nf {{ r_domain }} {{ put }} {{ n_chain }}{{ device_c }} -p udp -m udp{{ cond }} -j {{ verdict }}
+    nf {{ c_domain }} {{ put }} {{ n_chain }}{{ device_c }} -p tcp -m tcp{{ cond }} -j {{ verdict }}
+    nf {{ c_domain }} {{ put }} {{ n_chain }}{{ device_c }} -p udp -m udp{{ cond }} -j {{ verdict }}
 {%       elif proto in ['tcp', 'udp'] %}
-    nf {{ r_domain }} {{ put }} {{ n_chain }}{{ device_c }} -p {{ proto }} -m {{ proto }}{{ cond }} -j {{ verdict }}
+    nf {{ c_domain }} {{ put }} {{ n_chain }}{{ device_c }} -p {{ proto }} -m {{ proto }}{{ cond }} -j {{ verdict }}
 {%       else %}
 {#       numeric protocol #}
-    nf {{ r_domain }} {{ put }} {{ n_chain }}{{ device_c }} -p {{ proto }}{{ cond }} -j {{ verdict }}
+    nf {{ c_domain }} {{ put }} {{ n_chain }}{{ device_c }} -p {{ proto }}{{ cond }} -j {{ verdict }}
 {%       endif %}
 {%     endif %}
 {%   endfor %}

@@ -99,7 +99,7 @@
     direct: "{{ props.direct |default(wrt_net_firewall_default_direct) |bool }}"
 
     props: "{{ wrt_net_firewall[item.0][item.1] |default({}) }}"
-    rules: "{{ props.rules |default([],true) }}"
+    rules: "{{ props.rules |default([],true) |flatten }}"
     apply_std_rules: "{{ props.apply_std_rules |default(true) |bool }}"
     domain: "{{ props.domain |default('inet',true) }}"
     first: "{{ props.first |default(false) |bool }}"

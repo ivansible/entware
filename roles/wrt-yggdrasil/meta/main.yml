@@ -1,6 +1,5 @@
 ---
-dependencies:
-  - ivansible.wrt_net
+dependencies: []
 
 galaxy_info:
   role_name: wrt_yggdrasil

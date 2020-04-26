@@ -7,26 +7,6 @@
     - wrt_ygg_all
     - wrt_yggdrasil_all
 
-- name: create yggdrasil helper script for netfilter
-  include_role:
-    name: ivansible.wrt_net
-    tasks_from: netfilter.yml
-    apply:
-      become: true
-      tags:
-        - wrt_ygg_netfilter
-        - wrt_ygg_all
-        - wrt_yggdrasil_all
-  vars:
-    hooks:
-      - "{{ wrt_ygg_ifname }}.open"
-      - "{{ wrt_ygg_ifname }}.nat6"
-  when: wrt_ygg_enable |bool
-  tags:
-    - wrt_ygg_netfilter
-    - wrt_ygg_all
-    - wrt_yggdrasil_all
-
 - name: update yggdrasil ipv6 in cloudflare
   cloudflare_dns:
     account_email: "{{ wrt_ygg_cloudflare_email }}"

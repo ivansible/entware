@@ -5,22 +5,6 @@
   tags:
     - wrt_sshtun_packages
 
-- name: create sshtun helper script for netfilter
-  include_role:
-    name: ivansible.wrt_net
-    tasks_from: netfilter.yml
-    apply:
-      become: true
-      tags:
-        - wrt_sshtun_netfilter
-        - wrt_sshtun_scripts
-        - wrt_sshtun_all
-  vars:
-    hooks: ["tun{{ wrt_sshtun_local_tun }}.open"]
-  tags:
-    - wrt_sshtun_netfilter
-    - wrt_sshtun_scripts
-
 - name: create sshtun helper script for ssh client
   copy:
     src: sshtun-up.sh

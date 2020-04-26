@@ -7,24 +7,6 @@
     - wrt_wg_all
     - wrt_wireguard_all
 
-- name: create wireguard helper script for netfilter
-  include_role:
-    name: ivansible.wrt_net
-    tasks_from: netfilter.yml
-    apply:
-      become: true
-      tags:
-        - wrt_wg_netfilter
-        - wrt_wg_all
-        - wrt_wireguard_all
-  vars:
-    hooks:
-      - "{{ wrt_wg_dev }}.open"
-  tags:
-    - wrt_wg_netfilter
-    - wrt_wg_all
-    - wrt_wireguard_all
-
 - name: run postponed handlers now
   meta: flush_handlers
   tags:

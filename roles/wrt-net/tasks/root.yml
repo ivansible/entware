@@ -57,27 +57,18 @@
     - skip_ansible_lint
     - wrt_net_routing
 
-- name: upload netfilter scripts
+- name: create netfilter hook for vpn interfaces
   template:
-    src: "nf-if-{{ item }}.sh"
-    dest: "/opt/usr/sbin/nf-if-{{ item }}"
+    src: nf-if-vpn.sh
+    dest: "{{ wrt_net_nf_dir }}/all_vpn.rules"
     mode: 0755
-  loop: [open, nat6]
   notify: restart wrt service routing
-  tags: wrt_net_hooks
-
-- name: create netfilter hooks
-  include_tasks: netfilter.yml
-  vars:
-    hooks: "{{ hooks_open + hooks_nat6 }}"
-    hooks_open: "{{ wrt_net_ifs_open |map('regex_replace','$','.open') |list }}"
-    hooks_nat6: "{{ wrt_net_ifs_nat6 |map('regex_replace','$','.nat6') |list }}"
   tags: wrt_net_hooks
 
 - name: amend firewall rules
   template:
     src: nf-if-rules.sh
-    dest: "{{ rules_dir }}/{{ filename }}.rules"
+    dest: "{{ wrt_net_nf_dir }}/{{ filename }}.rules"
     mode: 0755
   when: rules |default([])
   loop: "{{ (wrt_net_firewall |default({},true)).keys()
@@ -89,7 +80,6 @@
     device_c: "{{ ' -i ' + device if direct else '' }}"
 
     filename: "{{ device |lower |regex_replace('[^0-9a-z]+','_') + '_' + item.1 }}"
-    rules_dir: /opt/etc/ndm/netfilter.d
     # rules_dir: /opt/tmp
 
     std_chains: {in: INPUT, out: OUTPUT, fwd: FORWARD}

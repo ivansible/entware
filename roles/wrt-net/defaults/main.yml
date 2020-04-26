@@ -43,6 +43,8 @@ wrt_net_nat6_recheck: false
 wrt_net_firewall_default_direct: true
 wrt_net_netfilter_hooks_put_first: false
 
+wrt_net_nf_dir: /opt/etc/ndm/netfilter.d
+
 wrt_net_initd: S32net
 
 wrt_net_packages:

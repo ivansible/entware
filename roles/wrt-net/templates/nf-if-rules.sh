@@ -2,7 +2,12 @@
 {% block init %}
 DEVICE={{ device }}
 {% endblock %}
+{% block case %}
+  filter|force)  rules ;;
+{% endblock %}
 {% block rules %}
+rules()
+{
 {% if not direct %}
     nf -q {{ domain }} -N {{ n_chain }}
 {% endif %}
@@ -70,4 +75,5 @@ DEVICE={{ device }}
 {% elif not direct  %}
     nf {{ domain }} {{ put_chain }} {{ f_chain }} -i {{ device }} -j {{ n_chain }}
 {% endif %}
+}
 {% endblock %}

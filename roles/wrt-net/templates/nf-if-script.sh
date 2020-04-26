@@ -8,11 +8,11 @@ LOG=/opt/var/log/netfilter.log
 DEVICE=""
 {% endblock %}
 
+{% block rules %}
 rules()
 {
-{% block rules %}
-{% endblock %}
 }
+{% endblock %}
 {% block utils %}
 {% endblock %}
 

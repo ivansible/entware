@@ -1,9 +1,29 @@
 {% extends "nf-if-script.sh" %}
 {% block rules %}
-{% set put = wrt_net_netfilter_hooks_put_first |bool |ternary('-I','-A') %}
-    [ $nat6_recheck_module = 1 ] && setup_netfilter_nat6
-    prefix_cidr=$(detect_prefix_full)
-    nf ipv6 -t nat {{ put }} POSTROUTING -s "$prefix_cidr" -o "$device" -j MASQUERADE
+vpn()
+{
+    for device in $ifs_open; do
+        nf inet $nf_put INPUT   -i $device -j ACCEPT
+        nf inet $nf_put FORWARD -i $device -j ACCEPT
+        nf inet $nf_put FORWARD -o $device -j ACCEPT
+    done
+}
+
+nat6()
+{
+    if [ -n "$ifs_nat6" ]; then
+        [ $nat6_recheck_module = 1 ] && setup_netfilter_nat6
+        prefix_cidr=$(detect_prefix_full)
+    fi
+    for device in $ifs_nat6; do
+        nf ipv6 -t nat $nf_put POSTROUTING -s "$prefix_cidr" -o $device -j MASQUERADE
+    done
+}
+{% endblock %}
+{% block case %}
+  filter)  vpn ;;
+  nat)     nat6 ;;
+  force)   vpn; nat6 ;;
 {% endblock %}
 {% block init %}
 DEVICE=""
@@ -11,6 +31,9 @@ DEVICE=""
 prefix_dev=br0
 prefix_len=64
 nat6_recheck_module=1
+nf_put="-A"
+ifs_open=""
+ifs_nat6=""
 {# shellcheck disable=SC1091 #}
 . /opt/etc/net/config
 {% endblock %}
@@ -38,7 +61,4 @@ detect_prefix_full()
         grep ":/${prefix_len}" |
         head -1
 }
-{% endblock %}
-{% block case %}
-  nat|force)  rules ;;
 {% endblock %}

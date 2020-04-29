@@ -16,10 +16,12 @@ wrt_net_firewall: ~            # map of devices with rules
 #          proto: tcp/udp/any          # protocol: tcp, udp or any (default: any)
 #          src: IPV4/IPV6              # source IP address (optional)
 #          dst: IPV4/IPV6              # destination IP address (optional)
+#          src_ipset: IPSET            # source ipset name (optional)
 #          port: PORT[-RANGE][/PROTO]  # single port or range (optional)
 #          permit: false               # permit or deny packet (default: false)
 #          first: false                # whether rule should be first in chain (default: false)
-#      apply_std_rules: true   # whether to apply standard rules (default: true)
+#      std_rules: false        # whether to apply standard rules (default: false)
+#      std_lists: false        # whether to apply standard block lists (default: false)
 #      direct: true            # add rules in the dedicated chain (false)
 #                              # or directly in the INPUT chain (default: direct)
 #      first: false            # whether chain/rules will be first in netfilter (default: false)
@@ -52,4 +54,6 @@ wrt_net_packages:
   - gawk
   - ndmq
   - xmlstarlet
+  - ipset
+  - iptables
 ...

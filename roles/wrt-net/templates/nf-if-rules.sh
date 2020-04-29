@@ -8,10 +8,10 @@ DEVICE={{ device }}
 {% block rules %}
 rules()
 {
-{% if not direct %}
+{% if indirect %}
     nf -q {{ domain }} -N {{ n_chain }}
 {% endif %}
-{% if direct and apply_std_rules %}
+{% if direct and std_rules %}
     nf {{ domain }} -A {{ s_chain }}{{ device_c }} -m state --state RELATED,ESTABLISHED -j ACCEPT
     nf {{ domain }} -A {{ s_chain }}{{ device_c }} -m state --state INVALID -j DROP
 {% endif %}
@@ -22,6 +22,8 @@ rules()
 {%   set dst = r.dst |default('') %}
 {%   set src_c = ' -s %s' % src if src else '' %}
 {%   set dst_c = ' -d %s' % dst if dst else '' %}
+{%   set src_ipset = r.src_ipset |default('') %}
+{%   set src_ipset_c = ' -m set --match-set %s src' % src_ipset if src_ipset else '' %}
 {%   set proto_s = r.proto |default('inet',true) %}
 {%   set sport = r.sport |default(0) |int %}
 {%   set sport_c = ' --sport %d' % sport if sport else '' %}
@@ -33,7 +35,7 @@ rules()
 {%     set port_s = port_tok.strip() %}
 {%     set dport = port_s.split('/').0 if '/' in port_s else port_s %}
 {%     set dport_c = ' --dport %s' % dport.replace('-',':') if dport else '' %}
-{%     set cond = src_c + dst_c + sport_c + dport_c %}
+{%     set cond = src_c + dst_c + sport_c + dport_c + src_ipset_c %}
 {%     set proto = port_s.split('/').1 if '/' in port_s else proto_s %}
 {%     set r_domain = r.domain |default(domain, true) %}
 {%     if (domain == r_domain or 'inet' in [domain, r_domain])
@@ -53,27 +55,32 @@ rules()
 {%   endfor %}
 {% endfor %}
 {% set put_chain = first |default(false) |bool |ternary('-I','-A') %}
-{% if apply_std_rules %}
-{%   if not direct %}
+{% if std_rules and indirect %}
     nf -q {{ domain }} -N {{ s_chain }}
     nf {{ domain }} -A {{ s_chain }}{{ device_c }} -m state --state RELATED,ESTABLISHED -j ACCEPT
     nf {{ domain }} -A {{ s_chain }}{{ device_c }} -m state --state INVALID -j DROP
     nf {{ domain }} -A {{ s_chain }}{{ device_c }} -p tcp -m tcp -m state --state NEW -j {{ n_chain }}
     nf {{ domain }} -A {{ s_chain }}{{ device_c }} -p udp -m udp -m state --state NEW -j {{ n_chain }}
-{%   endif %}
-{%   if domain in ['inet', 'ipv4'] %}
+{% endif %}
+{% if std_rules and got_ipv4 %}
     nf ipv4 -A {{ s_chain }}{{ device_c }} -p icmp -j ACCEPT
-{%   endif %}
-{%   if domain in ['inet', 'ipv6'] %}
-{%     for icmp6_type in [133, 134, 135, 136] %}
+{% endif %}
+{% if std_rules and got_ipv6 %}
+{%   for icmp6_type in [133, 134, 135, 136] %}
     nf ipv6 -A {{ s_chain }}{{ device_c }} -p ipv6-icmp -m icmp6 --icmpv6-type {{ icmp6_type }} -j ACCEPT
-{%     endfor %}
-{%   endif %}
-{%   if not direct %}
+{%   endfor %}
+{% endif %}
+{% if indirect and std_rules %}
     nf {{ domain }} {{ put_chain }} {{ f_chain }} -i {{ device }} -j {{ s_chain }}
-{%   endif %}
-{% elif not direct  %}
+{% endif %}
+{% if indirect and not std_rules %}
     nf {{ domain }} {{ put_chain }} {{ f_chain }} -i {{ device }} -j {{ n_chain }}
+{% endif %}
+{% if std_lists and got_ipv4 %}
+    nf ipv4 -I {{ f_chain }} -m state --state NEW -m set --match-set wrt-block-ipv4 src -i {{ device }} -j DROP
+{% endif %}
+{% if std_lists and got_ipv6 %}
+    nf ipv6 -I {{ f_chain }} -m state --state NEW -m set --match-set wrt-block-ipv6 src -i {{ device }} -j DROP
 {% endif %}
 }
 {% endblock %}

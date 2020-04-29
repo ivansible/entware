@@ -19,7 +19,7 @@ declare -A selections
 detect_prefix_full()
 {
     ip -o -6 route show |
-        egrep -v '^ff00|^fe80' |
+        grep -Ev '^ff00|^fe80' |
         grep "dev ${prefix_dev}" |
         awk '{print $1}' |
         grep ":/${prefix_len}" |
@@ -87,6 +87,17 @@ setup_netfilter_nat6()
     fi
 }
 
+create_ipsets()
+{
+    ipset create -exist wrt-block-ipv4 hash:net family inet  timeout 0 comment
+    ipset create -exist wrt-block-ipv6 hash:net family inet6 timeout 0 comment
+
+    while read ip comment; do
+        [[ $ip =~ : ]] && list=wrt-block-ipv6 || list=wrt-block-ipv4
+        ipset add -exist "$list" "$ip" comment "${comment//_/ }"
+    done < /opt/etc/net/block-hosts
+}
+
 run_netfilter_hooks()
 {
     for hook in /opt/etc/ndm/netfilter.d/*.* ; do
@@ -105,6 +116,7 @@ boot()
     set_loopback_addr
     set_static_routes
     setup_netfilter_nat6
+    create_ipsets
     run_netfilter_hooks
 }
 

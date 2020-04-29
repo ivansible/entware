@@ -1,0 +1,3 @@
+{% for host in wrt_net_block_hosts |default([],true) %}
+{{ host.ip }} {{ host.comment |default('-',true) |replace(' ','_') }}
+{% endfor %}

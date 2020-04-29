@@ -49,6 +49,13 @@
   notify: restart wrt service routing
   tags: wrt_net_routing
 
+- name: update block list
+  template:
+    src: block-hosts.j2
+    dest: /opt/etc/net/block-hosts
+  notify: restart wrt service routing
+  tags: wrt_net_routing
+
 - name: enable wrt service routing
   openwrt_init2:
     name: "{{ wrt_net_initd }}"
@@ -87,11 +94,15 @@
     s_chain: "{{ f_chain if direct else '_RULES_' + filename |upper }}"
     n_chain: "{{ f_chain if direct else 'RULES_' + filename |upper }}"
     direct: "{{ props.direct |default(wrt_net_firewall_default_direct) |bool }}"
+    indirect: "{{ not direct }}"
 
     props: "{{ wrt_net_firewall[item.0][item.1] |default({}) }}"
     rules: "{{ props.rules |default([],true) |flatten }}"
-    apply_std_rules: "{{ props.apply_std_rules |default(true) |bool }}"
+    std_rules: "{{ props.std_rules |default(false) |bool }}"
+    std_lists: "{{ props.std_lists |default(false) |bool }}"
     domain: "{{ props.domain |default('inet',true) }}"
+    got_ipv4: "{{ domain in ['inet', 'ipv4'] }}"
+    got_ipv6: "{{ domain in ['inet', 'ipv6'] }}"
     first: "{{ props.first |default(false) |bool }}"
   notify: restart wrt service routing
   tags: wrt_net_firewall

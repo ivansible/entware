@@ -1,4 +1,4 @@
-{% for line in wrt_net_block_hosts |default([],true) |flatten %}
+{% for line in wrt_net_int_hosts |default([],true) |flatten %}
 {%   if ';' in line %}
 {%     set addr = line.split(';').0.strip() %}
 {%     set comment = line.split(';').1.strip() %}

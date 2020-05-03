@@ -30,29 +30,14 @@
 
 - name: update configuration
   template:
-    src: config.j2
-    dest: /opt/etc/net/config
-  notify: restart wrt service routing
-  tags: wrt_net_routing
-
-- name: update static routes
-  template:
-    src: static-routes.j2
-    dest: /opt/etc/net/routes
-  notify: restart wrt service routing
-  tags: wrt_net_routing
-
-- name: update dynamic routes
-  template:
-    src: dynamic-routes.j2
-    dest: /opt/etc/net/spidr
-  notify: restart wrt service routing
-  tags: wrt_net_routing
-
-- name: update block list
-  template:
-    src: block-hosts.j2
-    dest: /opt/etc/net/block-hosts
+    src: "{{ item }}.j2"
+    dest: "/opt/etc/net/{{ item }}"
+  loop:
+    - config
+    - static-routes
+    - dynamic-routes
+    - int-hosts
+    - block-hosts
   notify: restart wrt service routing
   tags: wrt_net_routing
 

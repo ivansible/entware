@@ -51,7 +51,7 @@ nf()
               *'Invalid argument'* )
                 err=EINVAL
                 ;;
-              *'No chain/target'* | *'No such file'* )
+              *'No chain/target'* | *'No such file'* | *"Set "*"doesn't exist"* )
                 err="\"$(echo "$out" |head -1)\""
                 msg="[$time] FATAL: $table $prog ($ret) cmd: \"$cmd $*\" err: $err"
                 echo "$msg" >> $LOG

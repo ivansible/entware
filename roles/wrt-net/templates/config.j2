@@ -7,6 +7,11 @@ lo_dev={{ wrt_net_lo_dev }}
 lo_ipv4={{ wrt_net_lo_ipv4 }}
 lo_ipv6={{ wrt_net_lo_ipv6 }}
 nat6_recheck_module={{ wrt_net_nat6_recheck |bool |ternary(1,0) }}
-nf_put="{{ wrt_net_netfilter_hooks_put_first |bool |ternary('-I','-A') }}"
+{% if wrt_net_netfilter_hooks_put_first |bool %}
+nf_put="-I"
+ifs_open="{{ wrt_net_ifs_open |default([],true) |reverse |join(' ') }}"
+{% else %}
+nf_put="-A"
 ifs_open="{{ wrt_net_ifs_open |default([],true) |join(' ') }}"
+{% endif %}
 ifs_nat6="{{ wrt_net_ifs_nat6 |default([],true) |join(' ') }}"

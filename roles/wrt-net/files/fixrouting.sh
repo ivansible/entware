@@ -43,7 +43,7 @@ set_static_routes()
             dst="${dst/^/$prefix}"
             ip "$proto" route replace "$dst" via "$via" metric "$metric"
         done
-    done < /opt/etc/net/routes
+    done < /opt/etc/net/static-routes
 }
 
 update_dynamic_routes()
@@ -66,13 +66,13 @@ update_dynamic_routes()
             continue
         fi
         selections["$via_list"]="$via"
-        logger -t net "net: route '${comment//_/ }' via ${via}"
+        logger -t net "route '${comment//_/ }' via ${via}"
 
         for dst in ${dst_list//,/ } ; do
             dst="${dst/^/$prefix}"
             ip "$proto" route replace "$dst" via "$via" metric "$metric"
         done
-    done < /opt/etc/net/spidr
+    done < /opt/etc/net/dynamic-routes
 }
 
 setup_netfilter_nat6()
@@ -89,9 +89,15 @@ setup_netfilter_nat6()
 
 create_ipsets()
 {
+    ipset create -exist wrt-int-ipv4 hash:net family inet  comment
+    ipset create -exist wrt-int-ipv6 hash:net family inet6 comment
+    while read ip comment; do
+        [[ $ip =~ : ]] && list=wrt-int-ipv6 || list=wrt-int-ipv4
+        ipset add -exist "$list" "$ip" comment "${comment//_/ }"
+    done < /opt/etc/net/int-hosts
+
     ipset create -exist wrt-block-ipv4 hash:net family inet  timeout 0 comment
     ipset create -exist wrt-block-ipv6 hash:net family inet6 timeout 0 comment
-
     while read ip comment; do
         [[ $ip =~ : ]] && list=wrt-block-ipv6 || list=wrt-block-ipv4
         ipset add -exist "$list" "$ip" comment "${comment//_/ }"

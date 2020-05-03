@@ -38,6 +38,14 @@ wrt_net_lo_dev: lo
 wrt_net_lo_ipv4: ~
 wrt_net_lo_ipv6: ~
 
+wrt_net_block_hosts: []
+#  - "ADDR [; COMMENT]" ...
+wrt_net_int_hosts: []
+wrt_net_int_ports: []
+#  - PORT/PROTO ...
+## note: if list of internal ports is empty but internal hosts are present,
+##       internal hosts will be permitted on all ports.
+
 wrt_net_ifs_open: []
 wrt_net_ifs_nat6: []
 

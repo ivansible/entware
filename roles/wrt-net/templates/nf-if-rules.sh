@@ -8,6 +8,7 @@ DEVICE={{ device }}
 {% block rules %}
 rules()
 {
+{# ==== Standard Rules (Direct) ==== #}
 {% if indirect %}
     nf -q {{ domain }} -N {{ n_chain }}
 {% endif %}
@@ -15,6 +16,7 @@ rules()
     nf {{ domain }} -A {{ s_chain }}{{ device_c }} -m state --state RELATED,ESTABLISHED -j ACCEPT
     nf {{ domain }} -A {{ s_chain }}{{ device_c }} -m state --state INVALID -j DROP
 {% endif %}
+{# ==== User Rules ==== #}
 {% for r in rules %}
 {%   set put = r.first |default(false) |bool |ternary('-I','-A') %}
 {%   set verdict = r.permit |default(false) |bool |ternary('ACCEPT', 'DROP') %}
@@ -25,7 +27,7 @@ rules()
 {%   set src_ipset = r.src_ipset |default('') %}
 {%   set src_ipset_c = ' -m set --match-set %s src' % src_ipset if src_ipset else '' %}
 {%   set proto_s = r.proto |default('inet',true) %}
-{%   set sport = r.sport |default(0) |int %}
+{%   set sport = r.sport |default('',true) |regex_replace('/.*$','') |int %}
 {%   set sport_c = ' --sport %d' % sport if sport else '' %}
 {%   set port_val = r.dport |default(r.port) |default('') %}
 {%   set port_str = port_val |string
@@ -54,6 +56,7 @@ rules()
 {%     endif %}
 {%   endfor %}
 {% endfor %}
+{# ==== Standard Rules (Indirect) ==== #}
 {% set put_chain = first |default(false) |bool |ternary('-I','-A') %}
 {% if std_rules and indirect %}
     nf -q {{ domain }} -N {{ s_chain }}
@@ -76,11 +79,34 @@ rules()
 {% if indirect and not std_rules %}
     nf {{ domain }} {{ put_chain }} {{ f_chain }} -i {{ device }} -j {{ n_chain }}
 {% endif %}
+{# ==== Standard Lists ==== #}
+{% set std_cond = '-i %s -m state --state NEW -m set --match-set' % device %}
 {% if std_lists and got_ipv4 %}
-    nf ipv4 -I {{ f_chain }} -m state --state NEW -m set --match-set wrt-block-ipv4 src -i {{ device }} -j DROP
+{%   if wrt_net_int_ports %}
+{%     for port_s in wrt_net_int_ports |reverse %}
+{%       set dport = port_s.split('/').0 %}
+{%       set proto = port_s.split('/').1 %}
+    nf ipv4 -I {{ f_chain }} {{ std_cond }} wrt-int-ipv4 src -p {{ proto }} -m {{ proto }} --dport {{ dport }} -j ACCEPT
+{%     endfor %}
+{%   else %}
+    nf ipv4 -I {{ f_chain }} {{ std_cond }} wrt-int-ipv4 src -j ACCEPT
+{%   endif %}
+    nf ipv4 -I {{ f_chain }} {{ std_cond }} wrt-block-ipv4 src -j DROP
 {% endif %}
 {% if std_lists and got_ipv6 %}
-    nf ipv6 -I {{ f_chain }} -m state --state NEW -m set --match-set wrt-block-ipv6 src -i {{ device }} -j DROP
+{%   if wrt_net_int_ports %}
+{%     for port_s in wrt_net_int_ports |reverse %}
+{%       set dport = port_s.split('/').0 %}
+{%       set proto = port_s.split('/').1 %}
+    nf ipv6 -I {{ f_chain }} {{ std_cond }} wrt-int-ipv6 src -p {{ proto }} -m {{ proto }} --dport {{ dport }} -j ACCEPT
+{%     endfor %}
+{%   else %}
+    nf ipv6 -I {{ f_chain }} {{ std_cond }} wrt-int-ipv6 src -j ACCEPT
+{%   endif %}
+    nf ipv6 -I {{ f_chain }} {{ std_cond }} wrt-block-ipv6 src -j DROP
+{% endif %}
+{% if std_lists %}
+    nf inet -I {{ f_chain }} -i lo -j ACCEPT
 {% endif %}
 }
 {% endblock %}

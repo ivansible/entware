@@ -65,4 +65,5 @@ wrt_core_packages:
   - tmux
   - ndmq
   - jq
+  - rsync
 ...

@@ -17,7 +17,7 @@ rules()
     nf {{ domain }} -A {{ s_chain }}{{ device_c }} -m state --state INVALID -j DROP
 {% endif %}
 {# ==== User Rules ==== #}
-{% for r in rules %}
+{% for r in rules if not (r.disable |default(false) |bool) %}
 {%   set put = r.first |default(false) |bool |ternary('-I','-A') %}
 {%   set verdict = r.permit |default(false) |bool |ternary('ACCEPT', 'DROP') %}
 {%   set src = r.src |default('') %}

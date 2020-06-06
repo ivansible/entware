@@ -29,6 +29,7 @@ wrt_shell_aliases:
   wl: wc -l
   sc: supervisorctl
   ttt: tmux attach
+  ssu: sudo su -
 
 wrt_core_packages:
   ## essential packages

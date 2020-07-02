@@ -3,7 +3,7 @@
 # ansible-managed
 
 PATH=/opt/sbin:/opt/bin:/opt/usr/bin:/usr/sbin:/usr/bin:/sbin:/bin
-LOG=/opt/var/log/netfilter.log
+LOG={{ wrt_net_nf_log }}
 {% block init %}
 DEVICE=""
 {% endblock %}

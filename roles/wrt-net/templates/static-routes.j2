@@ -1,6 +1,6 @@
 {% for route in wrt_net_routes |default([],true) %}
-{%   set via = route.via if route.via is string else route.via |flatten |join(',') %}
-{%   set dst = route.dst if route.dst is string else route.dst |flatten |join(',') %}
+{%   set via = [route.via] |flatten |join(',') %}
+{%   set dst = [route.dst] |flatten |join(',') %}
 {%   set msg = route.name |default('route {{ loop.index }}') |replace(' ','_') %}
 {%   set via_count = via.split(',') |length %}
 {%   set dst_count = dst.split(',') |length %}

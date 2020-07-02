@@ -30,9 +30,7 @@ rules()
 {%   set sport = r.sport |default('',true) |regex_replace('/.*$','') |int %}
 {%   set sport_c = ' --sport %d' % sport if sport else '' %}
 {%   set port_val = r.dport |default(r.port) |default('') %}
-{%   set port_str = port_val |string
-                    if port_val is string or port_val is integer
-                    else port_val |flatten |join(',') %}
+{%   set port_str = [port_val] |flatten |join(',') %}
 {%   for port_tok in port_str.strip().split(',') %}
 {%     set port_s = port_tok.strip() %}
 {%     set dport = port_s.split('/').0 if '/' in port_s else port_s %}

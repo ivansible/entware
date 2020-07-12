@@ -2,7 +2,7 @@
 # defaults for ivansible.wrt_core
 
 wrt_swap_size_mb: 0
-wrt_swap_file: /opt/swap
+wrt_swap_file: /opt/swapfile
 
 wrt_ssh_authorized_keys: []
 

@@ -6,7 +6,7 @@ nfstat()
     local to=${3:-30}
     local day mmdd cnt
     for day in $(seq "$from" "$to"); do
-        mmdd=$(printf '%02d-%02d' "$mon" "$day")
+        mmdd=$(printf '%02d-%02d' "${mon##0}" "${day##0}")
         cnt=$(sort "$log" |grep -c "$mmdd")
         echo "$day $cnt"
     done

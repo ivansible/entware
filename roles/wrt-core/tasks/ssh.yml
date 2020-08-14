@@ -26,15 +26,29 @@
     label: "{{ item.0 }}"
   notify: restart wrt service ssh
 
-- name: authorize ssh keys
+- name: authorize new ssh keys
   authorized_key:
     user: "{{ ansible_user_id }}"
     key: "{{ lookup('pipe', keygen_cmd) }}"
-    comment: "{{ item |basename |regex_replace('[.]key$') }}"
+    comment: "{{ key_name }}"
+    state: present
   vars:
+    key_name: "{{ item |basename |regex_replace('[.]key$') }}"
     # use '&&' in the pipe to fail on chmod errors
     keygen_cmd: 'chmod 600 "{{ item }}" && ssh-keygen -y -f "{{ item }}"'
-  loop: "{{ wrt_ssh_authorized_keys }}"
+  loop: "{{ wrt_ssh_keys_accept }}"
   loop_control:
-    label: "{{ item | basename }}"
+    label: "{{ key_name }}"
+
+- name: revoke obsolete ssh keys
+  authorized_key:
+    user: "{{ ansible_user_id }}"
+    key: "{{ lookup('pipe', keygen_cmd) }}"
+    state: absent
+  vars:
+    key_name: "{{ item |basename |regex_replace('[.]key$') }}"
+    keygen_cmd: 'chmod 600 "{{ item }}" && ssh-keygen -y -f "{{ item }}"'
+  loop: "{{ wrt_ssh_keys_revoke }}"
+  loop_control:
+    label: "{{ key_name }}"
 ...

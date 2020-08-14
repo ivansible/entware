@@ -4,7 +4,14 @@
 wrt_swap_size_mb: 0
 wrt_swap_file: /opt/swapfile
 
-wrt_ssh_authorized_keys: []
+wrt_ssh_keys_accept: "{{ [ ssh_keys_accept |d([],true) ]
+                       | flatten |select |map('regex_findall','[^,]+') |flatten
+                      }}"
+wrt_ssh_keys_revoke: "{{ [ ssh_keys_revoke |d([],true) ]
+                       | flatten |select |map('regex_findall','[^,]+') |flatten
+                      }}"
+ssh_keys_accept: ~
+ssh_keys_revoke: ~
 
 wrt_ssh_settings:
   Port: "{{ ansible_port }}"

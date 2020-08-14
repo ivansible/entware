@@ -21,8 +21,11 @@ None
     wrt_swap_size_mb: 0
 Setup swap file of given size in megabytes, if not zero.
 
-    wrt_ssh_authorized_keys: []
-List of ssh key files to authorize with main user.
+    wrt_ssh_keys_accept: <derived from ssh_keys_accept>
+List of new ssh key files to accept on main user.
+
+    wrt_ssh_keys_revoke: <derived from ssh_keys_revoke>
+List of obsolete ssh key files to revoke from main user.
 
 
 ## Tags

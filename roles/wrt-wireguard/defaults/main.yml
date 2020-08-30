@@ -27,6 +27,7 @@ wrt_wg_nets: []
 wrt_wg_mtu: 0
 wrt_wg_keepalive: 0
 wrt_wg_addr: ~
+wrt_wg_metric: ~
 
 ## commands to generate keys:
 ## wg genkey | tee key | wg pubkey; cat key

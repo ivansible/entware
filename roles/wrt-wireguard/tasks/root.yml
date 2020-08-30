@@ -15,7 +15,7 @@
 
 - name: install wireguard helper script wg-setmetric
   copy:
-    src: wg-setmetric.sh
+    src: wg-setmetric.entware.sh
     dest: /opt/usr/sbin/wg-setmetric
     mode: 0755
     force: true
@@ -46,15 +46,15 @@
     dest: /opt/etc/wireguard/{{ net.name }}.conf
     mode: 0640
   vars:
-    addr: "{{ net.addr |default(wrt_wg_addr, true) }}"
-    key: "{{ net.key |default(wrt_wg_key, true) }}"
-    port: "{{ net.port |default(wrt_wg_port, true) |default(0,true) |int }}"
-    mtu: "{{ net.mtu |default(wrt_wg_mtu, true) |default(0,true) |int }}"
-    keepalive: "{{ net.keepalive |default(wrt_wg_keepalive, true) |default(0,true) |int }}"
+    addr: "{{ net.addr |d(wrt_wg_addr, true) }}"
+    key: "{{ net.key |d(wrt_wg_key, true) }}"
+    port: "{{ net.port |d(wrt_wg_port, true) |d(0,true) |int }}"
+    mtu: "{{ net.mtu |d(wrt_wg_mtu, true) |d(0,true) |int }}"
+    keepalive: "{{ net.keepalive |d(wrt_wg_keepalive, true) |d(0,true) |int }}"
     dev: "{{ wrt_wg_dev }}"
     peers: "{{ net.peers }}"
-    metric: ~
-  loop: "{{ wrt_wg_nets |default([],true) }}"
+    metric: "{{ wrt_wg_metric }}"
+  loop: "{{ wrt_wg_nets |d([],true) }}"
   loop_control:
     loop_var: net
     label: "{{ net.name }}"

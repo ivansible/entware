@@ -16,8 +16,12 @@
   lineinfile:
     path: /opt/etc/init.d/S26srelay
     regex: '^ARGS='
-    line: "ARGS=\"-i {{ wrt_srelay_addr }}:{{ wrt_srelay_port |int }} -c /opt/etc/srelay.conf -r -s\""
+    line: "ARGS=\"{{ arg_config }} {{ arg_listen }} {{ arg_log }}\""
     backup: true
+  vars:
+    arg_config: "-c /opt/etc/srelay.conf"
+    arg_listen: "-i {{ wrt_srelay_addr }}:{{ wrt_srelay_port |int }}"
+    arg_log: "{{ '-r -s' if wrt_srelay_verbose |bool else '-q' }}"
   notify: restart wrt service srelay
   when: wrt_srelay_addr |default('') and
         wrt_srelay_port |int

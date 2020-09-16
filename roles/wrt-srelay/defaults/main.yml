@@ -4,4 +4,5 @@
 wrt_srelay_enable: false
 wrt_srelay_port: 1080
 wrt_srelay_addr: ~
+wrt_srelay_verbose: false
 ...

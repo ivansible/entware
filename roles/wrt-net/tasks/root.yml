@@ -26,12 +26,14 @@
   file:
     path: /opt/etc/net
     state: directory
+    mode: 0755
   tags: wrt_net_routing
 
 - name: update configuration
   template:
     src: "{{ item }}.j2"
     dest: "/opt/etc/net/{{ item }}"
+    mode: 0644
   loop:
     - config
     - static-routes
@@ -64,31 +66,37 @@
     mode: 0755
   when: rules |default([])
   loop: "{{ (wrt_net_firewall |default({},true)).keys()
-          | sort | product(['in', 'out', 'fwd']) | list }}"
+          | sort | product(std_chains_list) | list }}"
   loop_control:
-    label: "{{ item.0 }}/{{ item.1 }}"
+    label: "{{ device }}/{{ ichain }}"
   vars:
     device: "{{ item.0 }}"
     device_c: "{{ ' -i ' + device if direct else '' }}"
 
-    filename: "{{ device |lower |regex_replace('[^0-9a-z]+','_') + '_' + item.1 }}"
+    filename: "{{ device |lower |regex_replace('[^0-9a-z]+','_') + '_' + ichain }}"
     # rules_dir: /opt/tmp
 
-    std_chains: {in: INPUT, out: OUTPUT, fwd: FORWARD}
-    f_chain: "{{ std_chains[item.1] |upper }}"
+    ichain: "{{ item.1 |lower }}"
+    tbl_c: "{{ '-t nat ' if ichain in ['dnat'] else '' }}"
+    std_chains_dict: {in: INPUT, out: OUTPUT, fwd: FORWARD, dnat: PREROUTING}
+    std_chains_list: [in, out, fwd, dnat]
+    f_chain: "{{ std_chains_dict[ichain] |upper }}"
+
     s_chain: "{{ f_chain if direct else '_RULES_' + filename |upper }}"
     n_chain: "{{ f_chain if direct else 'RULES_' + filename |upper }}"
     direct: "{{ props.direct |default(wrt_net_firewall_default_direct) |bool }}"
     indirect: "{{ not direct }}"
 
-    props: "{{ wrt_net_firewall[item.0][item.1] |default({}) }}"
-    rules: "{{ props.rules |default([],true) |flatten }}"
+    props: "{{ wrt_net_firewall[device][ichain] |default({}) }}"
+    p_rules: "{{ props.rules |default([],true) |flatten }}"
+    p_first: "{{ props.first |default(false) |bool }}"
+    rules: "{{ p_first |ternary(p_rules |reverse |list, p_rules) }}"
+
     std_rules: "{{ props.std_rules |default(false) |bool }}"
     std_lists: "{{ props.std_lists |default(false) |bool }}"
     domain: "{{ props.domain |default('inet',true) }}"
     got_ipv4: "{{ domain in ['inet', 'ipv4'] }}"
     got_ipv6: "{{ domain in ['inet', 'ipv6'] }}"
-    first: "{{ props.first |default(false) |bool }}"
   notify: restart wrt service routing
   tags: wrt_net_firewall
 ...

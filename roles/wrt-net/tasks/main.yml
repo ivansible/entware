@@ -10,6 +10,7 @@
     block: "{{ lookup('template', 'shell-helpers.sh') }}"
     marker: '# {mark} NETFILTER SHELL HERLPERS'
     create: true
+    mode: 0644
   tags:
     - wrt_net_user
     - wrt_net_all

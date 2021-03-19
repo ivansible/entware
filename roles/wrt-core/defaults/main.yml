@@ -22,11 +22,14 @@ wrt_ssh_settings:
 
 wrt_shell_aliases:
   c: clear
+  g: grep
+  gg: grep
   h: head
   l: ls --color=auto --group-directories-first
   ll: ls -l --color=auto --group-directories-first
   md: mkdir
   m: less -F
+  mm: less -F
   pg: ps w | grep -i
   rmf: rm -f
   rmr: rm -rf

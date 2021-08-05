@@ -91,10 +91,13 @@ create_ipsets()
 {
     ipset create -exist wrt-int-ipv4 hash:net family inet  comment
     ipset create -exist wrt-int-ipv6 hash:net family inet6 comment
-    while read ip comment; do
+
+    for int_hosts in /opt/etc/net/int-hosts* ; do
+      while read ip comment; do
         [[ $ip =~ : ]] && list=wrt-int-ipv6 || list=wrt-int-ipv4
         ipset add -exist "$list" "$ip" comment "${comment//_/ }"
-    done < /opt/etc/net/int-hosts
+      done < "$int_hosts"
+    done
 
     ipset create -exist wrt-block-ipv4 hash:net family inet  timeout 0 comment
     ipset create -exist wrt-block-ipv6 hash:net family inet6 timeout 0 comment

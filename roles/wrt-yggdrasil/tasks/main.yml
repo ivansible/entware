@@ -2,34 +2,8 @@
 - name: become root and setup yggdrasil
   import_tasks: root.yml
   become: true
-  when: wrt_ygg_enable |bool
+  when: ygg_enable |bool
   tags:
-    - wrt_ygg_all
-    - wrt_yggdrasil_all
-
-- name: update yggdrasil ipv6 in cloudflare
-  cloudflare_dns:
-    account_email: "{{ wrt_ygg_cloudflare_email }}"
-    account_api_token: "{{ wrt_ygg_cloudflare_token }}"
-    zone: "{{ wrt_ygg_cloudflare_zone }}"
-    record: "{{ alias }}{{ '.' if sub else '' }}{{ sub }}"
-    type: AAAA
-    value: "{{ wrt_ygg_ipv6 }}"
-    proxied: false
-    state: present
-    solo: true
-  become: false
-  delegate_to: localhost
-  register: cloudflare_result
-  until: cloudflare_result is successful
-  vars:
-    alias: "{{ wrt_ygg_alias |default(inventory_hostname, true) }}"
-    sub: "{{ wrt_ygg_cloudflare_subdomain |default('',true) |string }}"
-  when: wrt_ygg_enable |bool
-        and wrt_ygg_cloudflare_enable |bool
-        and wrt_ygg_ipv6 |default('')
-  tags:
-    - wrt_ygg_cloudflare
     - wrt_ygg_all
     - wrt_yggdrasil_all
 ...

@@ -39,8 +39,8 @@ rules()
 {%   set port_val = r.dport |default(r.port) |default('') %}
 {%   set port_str = [port_val] |flatten |join(',') %}
 {%   for port_tok in port_str.strip().split(',') %}
-{%     set port_s = port_tok.strip() %}
-{%     set dport = port_s.split('/').0 if '/' in port_s else port_s %}
+{%     set port_s = (port_tok |string).strip() %}
+{%     set dport = port_s.split('/').0 %}
 {%     set dport_c = ' --dport %s' % dport.replace('-',':') if dport else '' %}
 {%     set cond = src_c + dst_c + sport_c + dport_c + src_ipset_c %}
 {%     set proto = port_s.split('/').1 if '/' in port_s else proto_s %}
@@ -89,10 +89,13 @@ rules()
 {% set std_cond = '-i %s -m state --state NEW -m set --match-set' % device %}
 {% if std_lists and got_ipv4 %}
 {%   if wrt_net_int_ports %}
-{%     for port_s in wrt_net_int_ports |reverse %}
+{%     for port_tok in wrt_net_int_ports |reverse %}
+{%       set port_s = (port_tok |string).strip() %}
 {%       set dport = port_s.split('/').0 %}
-{%       set proto = port_s.split('/').1 %}
+{%       set proto_s = port_s.split('/').1.strip() if '/' in port_s else '' %}
+{%       for proto in ([proto_s] if proto_s else ['tcp','udp']) %}
     nf ipv4 {{ tbl_c }}-I {{ f_chain }} {{ std_cond }} wrt-int-ipv4 src -p {{ proto }} -m {{ proto }} --dport {{ dport }} -j ACCEPT
+{%       endfor %}
 {%     endfor %}
 {%   else %}
     nf ipv4 {{ tbl_c }}-I {{ f_chain }} {{ std_cond }} wrt-int-ipv4 src -j ACCEPT
@@ -101,10 +104,13 @@ rules()
 {% endif %}
 {% if std_lists and got_ipv6 %}
 {%   if wrt_net_int_ports %}
-{%     for port_s in wrt_net_int_ports |reverse %}
+{%     for port_tok in wrt_net_int_ports |reverse %}
+{%       set port_s = (port_tok |string).strip() %}
 {%       set dport = port_s.split('/').0 %}
-{%       set proto = port_s.split('/').1 %}
+{%       set proto_s = port_s.split('/').1.strip() if '/' in port_s else '' %}
+{%       for proto in ([proto_s] if proto_s else ['tcp','udp']) %}
     nf ipv6 {{ tbl_c }}-I {{ f_chain }} {{ std_cond }} wrt-int-ipv6 src -p {{ proto }} -m {{ proto }} --dport {{ dport }} -j ACCEPT
+{%       endfor %}
 {%     endfor %}
 {%   else %}
     nf ipv6 {{ tbl_c }}-I {{ f_chain }} {{ std_cond }} wrt-int-ipv6 src -j ACCEPT

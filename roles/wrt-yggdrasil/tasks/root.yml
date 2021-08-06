@@ -8,7 +8,18 @@
   file:
     path: /opt/etc/yggdrasil
     state: directory
+    mode: 0755
   tags: wrt_ygg_install
+
+- name: create yggdrasil startup script
+  copy:
+    src: yggdrasil.rc.sh
+    dest: /opt/etc/init.d/{{ ygg_initd }}
+    mode: 0755
+    force: true
+  register: _ygg_startup_result
+  tags: wrt_ygg_install
+
 
 - name: pull yggdrasil config from master peer
   slurp:
@@ -29,15 +40,6 @@
   register: _ygg_config_result
   tags: wrt_ygg_config
 
-- name: create yggdrasil startup script
-  copy:
-    src: yggdrasil.rc.sh
-    dest: /opt/etc/init.d/{{ ygg_initd }}
-    mode: 0755
-    force: true
-  register: _ygg_startup_result
-  tags: wrt_ygg_install
-
 - name: enable/restart wrt service yggdrasil
   openwrt_init2:
     name: "{{ ygg_initd }}"
@@ -49,4 +51,20 @@
   tags:
     - skip_ansible_lint
     - wrt_ygg_config
+
+
+- name: directory for the list of internal hosts
+  file:
+    path: /opt/etc/net
+    state: directory
+    mode: 0755
+  tags: wrt_ygg_firewall
+
+- name: add yggdrasil hosts to the list of internal hosts
+  template:
+    src: int-hosts.yggdrasil.j2
+    dest: /opt/etc/net/int-hosts.ygg
+    mode: 0644
+  notify: restart wrt service routing (yggdrasil)
+  tags: wrt_ygg_firewall
 ...

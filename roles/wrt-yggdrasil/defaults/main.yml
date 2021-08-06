@@ -49,4 +49,7 @@ ygg_socks: ~
 
 ## node IPv6 can be added to DNS service
 ygg_ipv6: ~
+
+## setting for the handler copy-pasted from ivansible.wrt_net
+wrt_net_initd: S32net
 ...

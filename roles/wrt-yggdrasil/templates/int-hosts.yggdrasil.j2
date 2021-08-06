@@ -1,0 +1,8 @@
+{% if ygg_peer_group |d('') %}
+{%   for hostname in groups[ygg_peer_group] |d([]) |sort %}
+{%     set addr = hostvars[hostname].ygg_ipv6 |d('') %}
+{%     if addr %}
+{{ addr }}	{{ hostname |replace('_','-') }}_yggdrasil
+{%     endif %}
+{%   endfor %}
+{% endif %}

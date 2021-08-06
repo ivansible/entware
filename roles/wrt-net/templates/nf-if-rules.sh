@@ -47,7 +47,8 @@ rules()
 {%     set r_domain = r.domain |default(domain, true) %}
 {%     if (domain == r_domain or 'inet' in [domain, r_domain])
           and r_domain in ['ipv4', 'ipv6', 'inet']
-          and domain in ['ipv4', 'ipv6', 'inet'] %}
+          and domain in ['ipv4', 'ipv6', 'inet']
+          and port_s not in ['0', 'off', 'none', '-'] %}
 {%       set c_domain = r_domain if domain == 'inet' else domain %}
 {%       if proto in ['inet', 'any'] %}
     nf {{ c_domain }} {{ tbl_c }}{{ put }} {{ n_chain }}{{ device_c }} -p tcp -m tcp{{ cond }} -j {{ verdict }}

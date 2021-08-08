@@ -34,11 +34,31 @@
 - name: update yggdrasil config
   copy:
     dest: /opt/etc/yggdrasil/yggdrasil.conf
-    content: "{{ _ygg_config_data.content | b64decode }}"
+    content: "{{ _ygg_config_data.content |b64decode }}"
     mode: 0644
     force: true
   register: _ygg_config_result
   tags: wrt_ygg_config
+
+- name: pull isolated yggdrasil config from master peer
+  slurp:
+    src: "/etc/yggdrasil/yggdrasil.{{ alias }}-isolate"
+  become: true
+  delegate_to: "{{ ygg_master_host }}"
+  vars:
+    alias: "{{ ygg_alias |d(inventory_hostname, true) }}"
+  register: _ygg_config_data_isolate
+  tags: wrt_ygg_config
+
+- name: update isolated yggdrasil config
+  copy:
+    dest: /opt/etc/yggdrasil/yggdrasil.isolate
+    content: "{{ _ygg_config_data_isolate.content |b64decode }}"
+    mode: 0644
+    force: true
+  register: _ygg_config_result
+  tags: wrt_ygg_config
+
 
 - name: enable/restart wrt service yggdrasil
   openwrt_init2:

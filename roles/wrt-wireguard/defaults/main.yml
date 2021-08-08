@@ -4,7 +4,7 @@
 wrt_wg_dev: wg0
 wrt_wg_port: 0
 
-wrt_wg_default_net: default
+wrt_wg_default_net: ~
 
 wrt_wg_nets: []
 # - name: net1         - name of subnet (REQUIRED)

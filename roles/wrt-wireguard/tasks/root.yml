@@ -37,8 +37,15 @@
     path: /opt/etc/wireguard
     state: directory
     mode: 0755
-  tags:
-    - wrt_wg_install
+  tags: wrt_wg_install
+
+- name: make null wireguard config
+  copy:
+    dest: /opt/etc/wireguard/none.conf
+    content: ''
+    force: true
+    mode: 0640
+  tags: wrt_wg_config
 
 - name: update wireguard configuration
   template:
@@ -63,7 +70,7 @@
 
 - name: verify that default wireguard net has config
   file:
-    path: "/opt/etc/wireguard/{{ wrt_wg_default_net }}.conf"
+    path: "/opt/etc/wireguard/{{ wrt_wg_default_net |d('none',true) }}.conf"
     state: file
   tags: wrt_wg_config
 
@@ -71,7 +78,7 @@
   file:
     state: link
     dest: "/opt/etc/wireguard/{{ wrt_wg_dev }}.conf"
-    src: "{{ wrt_wg_default_net }}.conf"
+    src: "{{ wrt_wg_default_net |d('none',true) }}.conf"
   notify: restart wrt service wireguard
   tags: wrt_wg_config
 

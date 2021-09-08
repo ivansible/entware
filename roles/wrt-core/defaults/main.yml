@@ -80,4 +80,6 @@ wrt_core_packages:
   - ndmq
   - jq
   - rsync
+  - lsblk
+  - fallocate
 ...

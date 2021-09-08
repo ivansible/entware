@@ -10,21 +10,23 @@ PATH=/opt/sbin:/opt/bin:/usr/sbin:/usr/bin:/sbin:/bin
 prepare()
 {
   echo "prepare swap file..."
-  dd if=/dev/zero of="$SWAP_FILE" bs=1M count=$SWAP_SIZE_MB
+  fallocate -l "${SWAP_SIZE_MB}M" "$SWAP_FILE"
   chmod 600 "$SWAP_FILE"
   mkswap "$SWAP_FILE"
 }
 
 case "$1" in
   start|restart)
-    if [ "$SWAP_SIZE_MB" -gt 0 ]; then
-      test -f "$SWAP_FILE" || prepare
-      swapon "$SWAP_FILE"
+    if [ -n "$SWAP_FILE" ] && [ -n "$SWAP_SIZE_MB" ] && [ "$SWAP_SIZE_MB" -gt 0 ]; then
+      test -e "$SWAP_FILE" || prepare
+      if ! grep -q "$SWAP_FILE" /proc/swaps ; then
+        swapon "$SWAP_FILE"
+      fi
       tail -n+2 /proc/swaps
     fi
     ;;
   stop)
-    if grep -q "$SWAP_FILE" /proc/swaps ; then
+    if [ -n "$SWAP_FILE" ] && grep -q "$SWAP_FILE" /proc/swaps ; then
       swapoff "$SWAP_FILE"
     fi
     tail -n+2 /proc/swaps

@@ -2,7 +2,7 @@
 # handler for ivansible.wrt_yggdrasil copy-pasted from ivansible.wrt_net
 
 - name: restart wrt service routing (yggdrasil)
-  openwrt_init2:
+  ivansible.entware.openwrt_init2:
     name: "{{ wrt_net_initd }}"
     state: restarted
   tags: skip_ansible_lint

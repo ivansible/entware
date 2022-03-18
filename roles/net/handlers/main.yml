@@ -2,7 +2,7 @@
 # handlers for ivansible.wrt_net
 
 - name: restart wrt service routing
-  openwrt_init2:
+  ivansible.entware.openwrt_init2:
     name: "{{ wrt_net_initd }}"
     state: restarted
   tags: skip_ansible_lint

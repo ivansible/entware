@@ -5,7 +5,7 @@
   tags: wrt_ss_packages
 
 - name: detect latest release of v2ray plugin for shadowsocks
-  github_release:
+  ivansible.base.github_release:
     repository: shadowsocks/v2ray-plugin
     release: latest
     template: '{download_url}/v2ray-plugin-linux-mips-{ver}.tar.gz'
@@ -43,7 +43,7 @@
   tags: wrt_ss_service
 
 - name: enable wrt service shadowsocks
-  openwrt_init2:
+  ivansible.entware.openwrt_init2:
     name: S22shadowsocks
     state: started
   tags:

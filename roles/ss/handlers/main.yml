@@ -8,7 +8,7 @@
   become: true
 
 - name: restart wrt service shadowsocks
-  openwrt_init2:
+  ivansible.entware.openwrt_init2:
     name: S22shadowsocks
     state: restarted
   tags: skip_ansible_lint

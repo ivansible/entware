@@ -65,7 +65,7 @@
   notify: restart wrt service openvpn
 
 - name: enable wrt service openvpn
-  openwrt_init2:
+  ivansible.entware.openwrt_init2:
     name: S20openvpn
     state: started
   tags: skip_ansible_lint

@@ -44,7 +44,7 @@
   tags: wrt_net_routing
 
 - name: enable wrt service routing
-  openwrt_init2:
+  ivansible.entware.openwrt_init2:
     name: "{{ wrt_net_initd }}"
     state: started
   tags:

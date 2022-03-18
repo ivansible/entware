@@ -2,7 +2,7 @@
 # handlers for ivansible.wrt_openvpn
 
 - name: restart wrt service openvpn
-  openwrt_init2:
+  ivansible.entware.openwrt_init2:
     name: S20openvpn
     state: restarted
   tags: skip_ansible_lint

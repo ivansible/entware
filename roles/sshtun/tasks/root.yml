@@ -117,7 +117,7 @@
     - wrt_sshtun_scripts
 
 - name: enable wrt service sshtun
-  openwrt_init2:
+  ivansible.entware.openwrt_init2:
     name: "{{ wrt_sshtun_initd }}"
     state: started
   tags:

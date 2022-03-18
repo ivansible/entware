@@ -31,7 +31,7 @@
   notify: restart wrt service privoxy
 
 - name: enable wrt service privoxy
-  openwrt_init2:
+  ivansible.entware.openwrt_init2:
     name: S24privoxy
     state: started
   tags: skip_ansible_lint

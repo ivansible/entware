@@ -83,7 +83,7 @@
   tags: wrt_wg_config
 
 - name: enable wrt service wireguard
-  openwrt_init2:
+  ivansible.entware.openwrt_init2:
     name: "{{ wrt_wg_initd }}"
     state: started
   tags:

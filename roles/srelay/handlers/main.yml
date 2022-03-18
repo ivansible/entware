@@ -2,7 +2,7 @@
 # handlers for ivansible.wrt_srelay
 
 - name: restart wrt service srelay
-  openwrt_init2:
+  ivansible.entware.openwrt_init2:
     name: S26srelay
     state: restarted
   tags: skip_ansible_lint

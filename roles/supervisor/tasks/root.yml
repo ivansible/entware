@@ -37,7 +37,7 @@
   notify: restart wrt service supervisord
 
 - name: enable wrt service supervisord
-  openwrt_init2:
+  ivansible.entware.openwrt_init2:
     name: "{{ wrt_supervisor_initd }}"
     state: started
   tags: skip_ansible_lint

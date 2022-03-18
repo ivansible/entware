@@ -2,7 +2,7 @@
 # handlers for ivansible.wrt_supervisor
 
 - name: restart wrt service supervisord
-  openwrt_init2:
+  ivansible.entware.openwrt_init2:
     name: "{{ wrt_supervisor_initd }}"
     state: restarted
   tags: skip_ansible_lint

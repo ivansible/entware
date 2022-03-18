@@ -2,7 +2,7 @@
 # handlers for ivansible.wrt_privoxy
 
 - name: restart wrt service privoxy
-  openwrt_init2:
+  ivansible.entware.openwrt_init2:
     name: S24privoxy
     state: restarted
   tags: skip_ansible_lint

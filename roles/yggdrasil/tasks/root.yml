@@ -61,7 +61,7 @@
 
 
 - name: enable/restart wrt service yggdrasil
-  openwrt_init2:
+  ivansible.entware.openwrt_init2:
     name: "{{ ygg_initd }}"
     state: "{{ 'restarted' if changed else 'started' }}"
   vars:

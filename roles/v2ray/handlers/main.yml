@@ -8,7 +8,7 @@
   become: true
 
 - name: restart wrt service v2ray
-  openwrt_init2:
+  ivansible.entware.openwrt_init2:
     name: "{{ wrt_v2ray_initd }}"
     state: restarted
   tags: skip_ansible_lint

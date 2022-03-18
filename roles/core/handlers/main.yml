@@ -2,7 +2,7 @@
 # handlers for ivansible.wrt_core
 
 - name: restart wrt service ssh
-  openwrt_init2:
+  ivansible.entware.openwrt_init2:
     name: S40sshd
     state: restarted
   tags: skip_ansible_lint

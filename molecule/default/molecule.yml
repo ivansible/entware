@@ -1,0 +1,35 @@
+---
+## performing only linting and syntax checks here.
+## playbooks, inventory and driver are not used.
+provisioner:
+  name: ansible
+  env:
+    ANSIBLE_CALLBACK_PLUGINS: $MOLECULE_PROJECT_DIRECTORY/plugins/callback
+    ANSIBLE_STRATEGY_PLUGINS: $HOME/.ansible/venv/site-packages/ansible_mitogen/plugins/strategy
+  config_options:
+    defaults:
+      strategy: ${ANSIBLE_STRATEGY:-mitogen_linear}
+      stdout_callback: ${ANSIBLE_STDOUT_CALLBACK:-unixy2}
+      verbosity: 1
+dependency:
+  name: galaxy
+  options:
+    role-file: molecule/default/requirements.yml
+lint: |
+  ansible-lint
+scenario:
+  test_sequence:
+    - dependency
+    - syntax
+    - lint
+driver:
+  name: delegated
+  options:
+    managed: false
+    ansible_connection_options:
+      ansible_connection: local
+platforms:
+  - name: localhost
+    groups:
+      - molecule
+...

@@ -15,11 +15,13 @@
   file:
     path: /opt/etc/supervisord.d
     state: directory
+    mode: 0755
 
 - name: create supervisor log directory
   file:
     path: /opt/var/log/supervisord
     state: directory
+    mode: 0755
 
 - name: create supervisor config file
   template:

@@ -1,9 +1,10 @@
 ---
 - name: ensure that temporary directory parent exists
   file:
-    state: directory
     ## avoid tmpfs in /tmp and /var/tmp as memory is limited
     path: "{{ ansible_user_dir }}/.ansible/tmp"
+    state: directory
+    mode: 0755
   register: temp_v2ray_parent
 
 - name: create temporary directory for v2ray plugin archive
@@ -32,6 +33,7 @@
   file:
     path: "{{ wrt_ss_v2ray_plugin_binary |dirname }}"
     state: directory
+    mode: 0755
 
 - name: copy v2ray plugin binary in place
   copy:
@@ -39,6 +41,7 @@
     src: "{{ temp_v2ray_plugin_dir.path }}/v2ray-plugin_linux_mipsle_sf"
     dest: "{{ wrt_ss_v2ray_plugin_binary }}"
     force: true
+    mode: 0755
 
 - name: ensure that v2ray plugin binary is executable
   file:

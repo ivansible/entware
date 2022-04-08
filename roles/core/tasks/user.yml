@@ -6,14 +6,17 @@
       {% for alias in wrt_shell_aliases |dictsort %}
       alias {{ alias.0 }}='{{ alias.1 }}'
       {% endfor %}
+    ## 'dummy quote to fix vim highliter
     marker: '# {mark} ANSIBLE SHELL ALIASES'
     create: true
+    mode: 0644
 
 - name: customize tmux for user
   lineinfile:
     path: "{{ ansible_user_dir }}/.tmux.conf"
     line: "{{ item }}"
     create: true
+    mode: 0644
   loop:
     - 'set-option -g history-limit 22000'
     - 'bind -n C-k clear-history'  # clear scroll buffer on Ctrl-K

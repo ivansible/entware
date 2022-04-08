@@ -40,7 +40,14 @@ wrt_shell_aliases:
   sc: supervisorctl
   ttt: tmux attach
   ssu: sudo su -
-  showlog: 'ndmq -x -p "show log" | grep -E "<message|<timestamp" | sed -r -e "s/ (level|label)=[^ >]+//g" -e "s/ *<\\/?message>//g" -e "s/^ *<timestamp>/[/g" -e "s/ *<\\/timestamp> *\$/]/g"'
+  showlog: >-
+    ndmq -x -p "show log" |
+    grep -E "<message|<timestamp" |
+    sed -r
+    -e "s/ (level|label)=[^ >]+//g"
+    -e "s/ *<\\/?message>//g"
+    -e "s/^ *<timestamp>/[/g"
+    -e "s/ *<\\/timestamp> *\$/]/g"
 
 wrt_core_packages:
   ## essential packages

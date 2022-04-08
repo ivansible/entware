@@ -4,6 +4,7 @@
     state: directory
     ## avoid tmpfs in /tmp and /var/tmp as memory is limited
     path: "{{ ansible_user_dir }}/.ansible/tmp"
+    mode: 0755
   register: temp_v2ray_parent
 
 - name: create temporary directory for v2ray client archive
@@ -32,6 +33,7 @@
   file:
     path: "{{ wrt_v2ray_client_binary |dirname }}"
     state: directory
+    mode: 0755
 
 - name: copy v2ray client binary in place
   copy:
@@ -39,6 +41,7 @@
     src: "{{ temp_v2ray_client_dir.path }}/v2ray"
     dest: "{{ wrt_v2ray_client_binary }}"
     force: true
+    mode: 0644
 
 - name: copy v2ctl binary in place
   copy:
@@ -46,6 +49,7 @@
     src: "{{ temp_v2ray_client_dir.path }}/v2ctl"
     dest: "{{ wrt_v2ray_client_binary |dirname }}"
     force: true
+    mode: 0644
 
 - name: ensure that v2ray client and v2ctl binary are executable
   file:

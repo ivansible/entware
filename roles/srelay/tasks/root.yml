@@ -10,6 +10,7 @@
       * any
     force: true
     backup: true
+    mode: 0644
   notify: restart wrt service srelay
 
 - name: restrict srelay to listening on private interface

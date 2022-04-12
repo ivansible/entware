@@ -1,6 +1,7 @@
 ---
 ## performing only linting and syntax checks here.
 ## playbooks, inventory and driver are not used.
+prerun: false
 provisioner:
   name: ansible
   env:

@@ -20,6 +20,7 @@
     url: "{{ latest_v2ray_plugin_release.url }}"
     dest: "{{ temp_v2ray_plugin_dir.path }}/release.tar.gz"
     force: true
+    mode: 0644
 
 ## Ansible unarchive module rejects busybox tar demanding GNU tar.
 ## As a workaround, download and unpack the archive manually

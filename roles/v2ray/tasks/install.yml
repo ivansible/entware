@@ -20,6 +20,7 @@
     url: "{{ latest_v2ray_client_release.url }}"
     dest: "{{ temp_v2ray_client_dir.path }}/release.zip"
     force: true
+    mode: 0644
 
 ## Ansible unarchive module fails to invoke busybox unzip
 ## As a workaround, download and unpack the archive manually

@@ -1,10 +1,10 @@
 ---
 - name: become root and install shadowsocks
-  import_tasks: root.yml
+  ansible.builtin.import_tasks: root.yml
   become: true
   when: wrt_ss_enable |bool
   tags: wrt_ss_all
 
 - name: run postponed handlers now
-  meta: flush_handlers
+  ansible.builtin.meta: flush_handlers
 ...

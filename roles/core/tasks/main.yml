@@ -1,9 +1,9 @@
 ---
 - name: become root and setup entware
-  import_tasks: root.yml
+  ansible.builtin.import_tasks: root.yml
   become: true
   tags: wrt_core_all
 
 - name: run postponed handlers now
-  meta: flush_handlers
+  ansible.builtin.meta: flush_handlers
 ...

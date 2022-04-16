@@ -1,5 +1,5 @@
 ---
-# handlers for ivansible.wrt_net
+## handlers for ivansible.entware.net
 
 - name: restart wrt service routing
   ivansible.entware.openwrt_init2:

@@ -1,12 +1,12 @@
 ---
 - name: install sshtun packages
-  opkg:
+  community.general.opkg:
     name: "{{ wrt_sshtun_packages |join(',') }}"
   tags:
     - wrt_sshtun_packages
 
 - name: create sshtun helper script for ssh client
-  copy:
+  ansible.builtin.copy:
     src: sshtun-up.sh
     dest: /opt/usr/sbin/sshtun-up.sh
     mode: 0755
@@ -17,7 +17,7 @@
     - wrt_sshtun_scripts
 
 - name: create sshtun service script
-  copy:
+  ansible.builtin.copy:
     src: sshtun-service.sh
     dest: /opt/usr/sbin/sshtun-service.sh
     mode: 0755
@@ -28,7 +28,7 @@
     - wrt_sshtun_scripts
 
 - name: create directory for ssh client config
-  file:
+  ansible.builtin.file:
     path: "{{ ansible_user_dir }}/.ssh"
     state: directory
     mode: 0755
@@ -36,7 +36,7 @@
     - wrt_sshtun_ssh
 
 - name: create directory for sshtun config files
-  file:
+  ansible.builtin.file:
     path: /opt/etc/sshtun
     state: directory
     mode: 0755
@@ -44,7 +44,7 @@
     - wrt_sshtun_config
 
 - name: setup sshtun server peers
-  include_tasks: peer.yml
+  ansible.builtin.include_tasks: peer.yml
   args:
     apply:
       become: true
@@ -52,30 +52,30 @@
         - wrt_sshtun_peers
         - wrt_sshtun_all
   vars:
-    name: "{{ peer.name |default('',true) |string }}"
+    name: "{{ peer.name |d('',true) |string }}"
     ssh_alias: "{{ name }}"
 
-    ssh_host: "{{ peer.ssh_host |default('',true) |string }}"
-    ssh_port: "{{ peer.ssh_port |default(wrt_sshtun_ssh_port, true) |default(22,true) |int }}"
-    ssh_user: "{{ peer.ssh_user |default(wrt_sshtun_ssh_user, true) |default('',true) |string }}"
-    ssh_key: "{{ peer.ssh_key |default(wrt_sshtun_ssh_key, true) |default('',true) |string }}"
+    ssh_host: "{{ peer.ssh_host |d('',true) |string }}"
+    ssh_port: "{{ peer.ssh_port |d(wrt_sshtun_ssh_port, true) |d(22,true) |int }}"
+    ssh_user: "{{ peer.ssh_user |d(wrt_sshtun_ssh_user, true) |d('',true) |string }}"
+    ssh_key: "{{ peer.ssh_key |d(wrt_sshtun_ssh_key, true) |d('',true) |string }}"
 
     ## note: known_host key is broken with proxy
-    strict_host_checks: "{{ peer.strict_host_checks |default(proxy == '', true) |bool }}"  # noqa 602
-    known_host_key: "{{ peer.host_key |default('',true) }}"
-    keyscan_workaround: "{{ peer.keyscan_workaround |default(wrt_sshtun_keyscan_workaround) |bool }}"
-    proxy: "{{ peer.proxy |default(wrt_sshtun_proxy, true) |default('',true) |string }}"
+    strict_host_checks: "{{ peer.strict_host_checks |d(proxy == '', true) |bool }}"  # noqa 602
+    known_host_key: "{{ peer.host_key |d('',true) }}"
+    keyscan_workaround: "{{ peer.keyscan_workaround |d(wrt_sshtun_keyscan_workaround) |bool }}"
+    proxy: "{{ peer.proxy |d(wrt_sshtun_proxy, true) |d('',true) |string }}"
 
-    socks_port: "{{ peer.socks_port |default(wrt_sshtun_socks_port, true) |default(0,true) |int }}"
-    forward_ports: "{{ peer.forward_ports |default(wrt_sshtun_forward_ports, true) |default([],true) }}"
+    socks_port: "{{ peer.socks_port |d(wrt_sshtun_socks_port, true) |d(0,true) |int }}"
+    forward_ports: "{{ peer.forward_ports |d(wrt_sshtun_forward_ports, true) |d([],true) }}"
 
-    gw_ipv4: "{{ peer.gw_ipv4 |default(wrt_sshtun_gw_ipv4, true) |string }}"
-    gw_ipv6: "{{ peer.gw_ipv6 |default(wrt_sshtun_gw_ipv6, true) |string }}"
-    remote_tun: "{{ peer.remote_tun |default(wrt_sshtun_remote_tun, true) |int }}"
+    gw_ipv4: "{{ peer.gw_ipv4 |d(wrt_sshtun_gw_ipv4, true) |string }}"
+    gw_ipv6: "{{ peer.gw_ipv6 |d(wrt_sshtun_gw_ipv6, true) |string }}"
+    remote_tun: "{{ peer.remote_tun |d(wrt_sshtun_remote_tun, true) |int }}"
     local_tun: "{{ wrt_sshtun_local_tun }}"
     local_tun_device: "tun{{ local_tun }}"
   when: ssh_alias and ssh_host and ssh_user
-  loop: "{{ wrt_sshtun_servers |default([],true) }}"
+  loop: "{{ wrt_sshtun_servers |d([],true) }}"
   loop_control:
     loop_var: peer
     label: "{{ name }}"
@@ -88,7 +88,7 @@
     - wrt_sshtun_ssh_key
 
 - name: verify that default sshtun peer has config
-  file:
+  ansible.builtin.file:
     path: /opt/etc/sshtun/{{ wrt_sshtun_default_server }}
     state: file
   tags:
@@ -97,7 +97,7 @@
     - wrt_sshtun_service
 
 - name: update symlink for default sshtun peer
-  file:
+  ansible.builtin.file:
     state: link
     dest: /opt/etc/sshtun/config
     src: "{{ wrt_sshtun_default_server }}"
@@ -108,7 +108,7 @@
     - wrt_sshtun_service
 
 - name: create sshtun startup script
-  copy:
+  ansible.builtin.copy:
     src: sshtun-initd.sh
     dest: "/opt/etc/init.d/{{ wrt_sshtun_initd }}"
     mode: 0755

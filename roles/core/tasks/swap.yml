@@ -1,12 +1,12 @@
 ---
 - name: activate swap file on every boot
-  template:
+  ansible.builtin.template:
     src: swapon.init.sh
     dest: /opt/etc/init.d/S99swapon
     mode: 0755
 
 - name: setup and activate swap file
-  command: /opt/etc/init.d/S99swapon start
-  args:
+  ansible.builtin.command:
+    cmd: /opt/etc/init.d/S99swapon start
     creates: "{{ wrt_swap_file }}"
 ...

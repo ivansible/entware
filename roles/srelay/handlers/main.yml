@@ -1,5 +1,5 @@
 ---
-# handlers for ivansible.wrt_srelay
+## handlers for ivansible.entware.srelay
 
 - name: restart wrt service srelay
   ivansible.entware.openwrt_init2:

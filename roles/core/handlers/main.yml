@@ -1,5 +1,5 @@
 ---
-# handlers for ivansible.wrt_core
+## handlers for ivansible.entware.core
 
 - name: restart wrt service ssh
   ivansible.entware.openwrt_init2:

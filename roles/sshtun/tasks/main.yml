@@ -1,13 +1,14 @@
 ---
 - name: setup ssh tun client as root
-  import_tasks: root.yml
+  ansible.builtin.import_tasks: root.yml
   become: true
-  when: wrt_sshtun_enable |bool
-        and wrt_sshtun_servers |default([])
-        and wrt_sshtun_default_server |default('')
+  when:
+    - wrt_sshtun_enable |bool
+    - wrt_sshtun_servers |d([])
+    - wrt_sshtun_default_server |d('')
   tags: wrt_sshtun_all
 
 - name: run postponed handlers now
-  meta: flush_handlers
+  ansible.builtin.meta: flush_handlers
   tags: wrt_sshtun_all
 ...

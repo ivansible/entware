@@ -1,15 +1,16 @@
 ---
 - name: become root and setup openvpn
-  import_tasks: root.yml
+  ansible.builtin.import_tasks: root.yml
   become: true
-  when: wrt_ovpn_servers |default([])
-        and wrt_ovpn_default_server |default('')
+  when:
+    - wrt_ovpn_servers |d([])
+    - wrt_ovpn_default_server |d('')
   tags:
     - wrt_ovpn_all
     - wrt_openvpn_all
 
 - name: run postponed handlers now
-  meta: flush_handlers
+  ansible.builtin.meta: flush_handlers
   tags:
     - wrt_ovpn_all
     - wrt_openvpn_all

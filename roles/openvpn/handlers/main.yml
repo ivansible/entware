@@ -1,5 +1,5 @@
 ---
-# handlers for ivansible.wrt_openvpn
+## handlers for ivansible.entware.openvpn
 
 - name: restart wrt service openvpn
   ivansible.entware.openwrt_init2:

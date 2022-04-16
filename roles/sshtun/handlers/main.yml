@@ -1,5 +1,5 @@
 ---
-# handlers for ivansible.wrt_sshtun
+## handlers for ivansible.entware.sshtun
 
 - name: restart wrt service sshtun
   ivansible.entware.openwrt_init2:

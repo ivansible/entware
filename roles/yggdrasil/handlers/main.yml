@@ -1,5 +1,6 @@
 ---
-# handler for ivansible.wrt_yggdrasil copy-pasted from ivansible.wrt_net
+## handler for ivansible.entware.yggdrasil
+## (copy-pasted from ivansible.entware.net)
 
 - name: restart wrt service routing (yggdrasil)
   ivansible.entware.openwrt_init2:

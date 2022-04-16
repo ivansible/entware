@@ -1,8 +1,8 @@
 ---
-# handlers for ivansible.wrt_ss
+## handlers for ivansible.entware.ss
 
 - name: remove temporary v2ray plugin directory
-  file:
+  ansible.builtin.file:
     path: "{{ temp_v2ray_plugin_dir.path }}"
     state: absent
   become: true

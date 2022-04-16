@@ -1,17 +1,17 @@
 ---
 - name: install private ssh key for sshtun peer '{{ name }}'
-  copy:
+  ansible.builtin.copy:
     src: "{{ ssh_key }}"
     dest: "{{ ansible_user_dir }}/.ssh/{{ ssh_key |basename }}"
     mode: 0600
-  when: ssh_key |default('')
+  when: ssh_key |d('')
   notify: restart wrt service sshtun
   tags:
     - wrt_sshtun_ssh_key
     - wrt_sshtun_ssh
 
 - name: add known host key for sshtun peer '{{ name }}'
-  known_hosts:
+  ansible.builtin.known_hosts:
     path: "{{ keys_file }}"
     name: "{{ key_name }}"
     key: "{{ lookup('pipe', keyscan_cmd) or lookup('pipe', fallback_cmd) or known_host_key }}"
@@ -37,7 +37,7 @@
     - wrt_sshtun_ssh
 
 - name: warn about keyscan for sshtun peer '{{ name }}'
-  debug:
+  ansible.builtin.debug:
     msg: "keyscan failed for peer '{{ name }}' - strict host checking is disabled!"
   when: keyscan_workaround and sshtun_keyscan_result is failed
   tags:
@@ -45,7 +45,7 @@
     - wrt_sshtun_ssh
 
 - name: update ssh alias for sshtun peer '{{ name }}'
-  blockinfile:
+  ansible.builtin.blockinfile:
     path: "{{ ansible_user_dir }}/.ssh/config"
     block: "{{ lookup('template', 'ssh.config') }}"
     marker: '# {mark} SSHTUN ({{ ssh_alias }})'
@@ -65,7 +65,7 @@
     - wrt_sshtun_config
 
 - name: update configuration for sshtun peer '{{ name }}'
-  template:
+  ansible.builtin.template:
     src: sshtun.config
     dest: "/opt/etc/sshtun/{{ name }}"
     mode: 0640

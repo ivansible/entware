@@ -1,5 +1,5 @@
 ---
-# handlers for ivansible.wrt_supervisor
+## handlers for ivansible.entware.supervisor
 
 - name: restart wrt service supervisord
   ivansible.entware.openwrt_init2:

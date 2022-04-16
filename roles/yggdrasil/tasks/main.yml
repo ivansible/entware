@@ -1,6 +1,6 @@
 ---
 - name: become root and setup yggdrasil
-  import_tasks: root.yml
+  ansible.builtin.import_tasks: root.yml
   become: true
   when: ygg_enable |bool
   tags:

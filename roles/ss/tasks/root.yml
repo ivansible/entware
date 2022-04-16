@@ -1,6 +1,6 @@
 ---
 - name: install shadowsocks packages
-  opkg:
+  community.general.opkg:
     name: "{{ wrt_ss_packages |join(',') }}"
   tags: wrt_ss_packages
 
@@ -16,7 +16,7 @@
   tags: wrt_ss_v2ray
 
 - name: install latest v2ray plugin for shadowsocks
-  include_tasks: v2ray.yml
+  ansible.builtin.include_tasks: v2ray.yml
   args:
     apply:
       become: true
@@ -27,7 +27,7 @@
   when: latest_v2ray_plugin_release is changed
 
 - name: update shadowsocks configuration
-  template:
+  ansible.builtin.template:
     src: shadowsocks.json
     dest: /opt/etc/shadowsocks.json
     mode: 0644
@@ -36,7 +36,7 @@
   tags: wrt_ss_config
 
 - name: ensure that shadowsocks init script is executable
-  file:
+  ansible.builtin.file:
     path: /opt/etc/init.d/S22shadowsocks
     mode: 0755
   notify: restart wrt service shadowsocks

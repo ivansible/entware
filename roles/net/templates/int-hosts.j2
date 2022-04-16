@@ -1,9 +1,9 @@
-{% for line in wrt_net_int_hosts |default([],true) |flatten %}
+{% for line in wrt_net_int_hosts |d([],true) |flatten %}
 {%   if ';' in line %}
 {%     set addr = line.split(';').0.strip() %}
 {%     set comment = line.split(';').1.strip() %}
 {%     if addr %}
-{{ addr }} {{ comment |default('-',true) |replace(' ','_') }}
+{{ addr }} {{ comment |d('-',true) |replace(' ','_') }}
 {%     endif %}
 {%   elif line.strip() %}
 {{ line }} -

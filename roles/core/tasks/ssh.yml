@@ -5,7 +5,7 @@
   ## https://security.stackexchange.com/questions/79043/is-it-considered-worth-it-to-replace-opensshs-moduli-file
   ## https://www.linode.com/docs/security/advanced-ssh-server-security/
   ## https://github.com/openssh/openssh-portable/blob/master/moduli
-  copy:
+  ansible.builtin.copy:
     ## downloaded on 2020-04-22 from:
     ## https://raw.githubusercontent.com/openssh/openssh-portable/master/moduli
     src: ssh-moduli
@@ -15,7 +15,7 @@
   notify: restart wrt service ssh
 
 - name: tweak ssh server settings
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /opt/etc/ssh/sshd_config
     regexp: '^#*\s*{{ item.0 }}\b'
     line: '{{ item.0 }} {{ item.1 }}'
@@ -27,7 +27,7 @@
   notify: restart wrt service ssh
 
 - name: authorize new ssh keys
-  authorized_key:
+  ansible.posix.authorized_key:
     user: "{{ ansible_user_id }}"
     key: "{{ lookup('pipe', keygen_cmd) }}"
     comment: "{{ key_name }}"
@@ -41,7 +41,7 @@
     label: "{{ key_name }}"
 
 - name: revoke obsolete ssh keys
-  authorized_key:
+  ansible.posix.authorized_key:
     user: "{{ ansible_user_id }}"
     key: "{{ lookup('pipe', keygen_cmd) }}"
     state: absent

@@ -1,8 +1,8 @@
 ---
-# handlers for ivansible.wrt_v2ray
+## handlers for ivansible.entware.v2ray
 
 - name: remove temporary v2ray client directory
-  file:
+  ansible.builtin.file:
     path: "{{ temp_v2ray_client_dir.path }}"
     state: absent
   become: true

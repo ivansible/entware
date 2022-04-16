@@ -1,29 +1,29 @@
 ---
 - name: install privoxy package
-  opkg:
+  community.general.opkg:
     name: privoxy
 
 - name: backup original privoxy config
-  command: cp -a /opt/etc/privoxy/config /opt/etc/privoxy/config.orig
-  args:
+  ansible.builtin.command:
+    cmd: cp -a /opt/etc/privoxy/config /opt/etc/privoxy/config.orig
     creates: /opt/etc/privoxy/config.orig
 
 - name: set privoxy listening port
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /opt/etc/privoxy/config
     regexp: '^\s*listen-address\b'
     line: "listen-address {{ http_addr }}:{{ http_port }}"
   notify: restart wrt service privoxy
 
 - name: set target socks port for privoxy
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /opt/etc/privoxy/config
     regexp: '^\s*forward-socks5\b'
     line: "forward-socks5 / 127.0.0.1:{{ socks_port }} ."
   notify: restart wrt service privoxy
 
 - name: permit privoxy access from anyone (protected by netfilter)
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /opt/etc/privoxy/config
     regexp: '^\s*(permit-access\b.*)$'
     line: '## \1'

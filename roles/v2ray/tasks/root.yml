@@ -1,6 +1,6 @@
 ---
 - name: install v2ray packages
-  opkg:
+  community.general.opkg:
     name: "{{ wrt_v2ray_packages |join(',') }}"
   tags: wrt_v2ray_packages
 
@@ -16,7 +16,7 @@
   tags: wrt_v2ray_client
 
 - name: install latest v2ray client
-  include_tasks: install.yml
+  ansible.builtin.include_tasks: install.yml
   args:
     apply:
       become: true
@@ -27,7 +27,7 @@
   tags: wrt_v2ray_client
 
 - name: update v2ray configuration
-  template:
+  ansible.builtin.template:
     src: config.json
     dest: /opt/etc/v2ray.json
     mode: 0644
@@ -36,14 +36,14 @@
   tags: wrt_v2ray_config
 
 - name: create directory for v2ray logs
-  file:
+  ansible.builtin.file:
     path: /opt/var/log/v2ray
     state: directory
     mode: 0755
   tags: wrt_v2ray_service
 
 - name: create v2ray init script
-  copy:
+  ansible.builtin.copy:
     src: init.sh
     dest: /opt/etc/init.d/{{ wrt_v2ray_initd }}
     mode: 0755

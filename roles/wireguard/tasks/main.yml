@@ -1,14 +1,14 @@
 ---
 - name: become root and setup wireguard
-  import_tasks: root.yml
+  ansible.builtin.import_tasks: root.yml
   become: true
-  when: wrt_wg_nets |default([])
+  when: wrt_wg_nets |d([])
   tags:
     - wrt_wg_all
     - wrt_wireguard_all
 
 - name: run postponed handlers now
-  meta: flush_handlers
+  ansible.builtin.meta: flush_handlers
   tags:
     - wrt_wg_all
     - wrt_wireguard_all

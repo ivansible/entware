@@ -22,7 +22,7 @@
     }
   ],
   "outbounds": [
-{% for domain in wrt_v2ray_domains |default([],true) |flatten %}
+{% for domain in wrt_v2ray_domains |d([],true) |flatten %}
     {
       "tag": "cdn:{{ domain }}",
       "protocol": "vmess",

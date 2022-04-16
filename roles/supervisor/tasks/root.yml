@@ -1,37 +1,37 @@
 ---
 - name: check for existing supervisord
-  stat:
+  ansible.builtin.stat:
     path: /opt/bin/supervisord
   register: stat_supervisord
 
 - name: install supervisor
-  pip:
+  ansible.builtin.pip:
     name: supervisor
     state: present
     executable: pip3
   when: not stat_supervisord.stat.exists
 
 - name: create supervisor config directory
-  file:
+  ansible.builtin.file:
     path: /opt/etc/supervisord.d
     state: directory
     mode: 0755
 
 - name: create supervisor log directory
-  file:
+  ansible.builtin.file:
     path: /opt/var/log/supervisord
     state: directory
     mode: 0755
 
 - name: create supervisor config file
-  template:
+  ansible.builtin.template:
     src: supervisord.conf
     dest: /opt/etc/supervisord.conf
     mode: 0644
   notify: restart wrt service supervisord
 
 - name: create supervisor startup script
-  copy:
+  ansible.builtin.copy:
     src: supervisord.rc.sh
     dest: /opt/etc/init.d/{{ wrt_supervisor_initd }}
     mode: 0755

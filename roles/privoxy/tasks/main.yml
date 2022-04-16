@@ -1,6 +1,6 @@
 ---
 - name: install privoxy service on entware as root
-  import_tasks: root.yml
+  ansible.builtin.import_tasks: root.yml
   vars:
     http_addr: "{{ wrt_privoxy_listen_addr }}"
     http_port: "{{ wrt_privoxy_listen_port }}"
@@ -10,6 +10,6 @@
   tags: wrt_privoxy_all
 
 - name: run postponed handlers now
-  meta: flush_handlers
+  ansible.builtin.meta: flush_handlers
   tags: wrt_privoxy_all
 ...

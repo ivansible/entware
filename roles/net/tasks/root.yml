@@ -1,11 +1,11 @@
 ---
 - name: install routing packages
-  opkg:
+  community.general.opkg:
     name: "{{ wrt_net_packages |join(',') }}"
   tags: wrt_net_packages
 
 - name: create service script for net routing
-  copy:
+  ansible.builtin.copy:
     src: fixrouting.sh
     dest: /opt/usr/bin/fixrouting
     mode: 0750
@@ -14,7 +14,7 @@
   tags: wrt_net_routing
 
 - name: create routing startup script
-  copy:
+  ansible.builtin.copy:
     src: net-initd.sh
     dest: /opt/etc/init.d/{{ wrt_net_initd }}
     mode: 0755
@@ -23,14 +23,14 @@
   tags: wrt_net_routing
 
 - name: create net config directory
-  file:
+  ansible.builtin.file:
     path: /opt/etc/net
     state: directory
     mode: 0755
   tags: wrt_net_routing
 
 - name: update configuration
-  template:
+  ansible.builtin.template:
     src: "{{ item }}.j2"
     dest: "/opt/etc/net/{{ item }}"
     mode: 0644
@@ -52,7 +52,7 @@
     - wrt_net_routing
 
 - name: create netfilter hook for vpn interfaces
-  template:
+  ansible.builtin.template:
     src: nf-if-vpn.sh
     dest: "{{ wrt_net_nf_dir }}/all_vpn.rules"
     mode: 0755
@@ -60,12 +60,12 @@
   tags: wrt_net_hooks
 
 - name: amend firewall rules
-  template:
+  ansible.builtin.template:
     src: nf-if-rules.sh
     dest: "{{ wrt_net_nf_dir }}/{{ filename }}.rules"
     mode: 0755
-  when: rules |default([])
-  loop: "{{ (wrt_net_firewall |default({},true)).keys()
+  when: rules |d([])
+  loop: "{{ (wrt_net_firewall |d({},true)).keys()
           | sort | product(std_chains_list) | list }}"
   loop_control:
     label: "{{ device }}/{{ ichain }}"
@@ -84,17 +84,17 @@
 
     s_chain: "{{ f_chain if direct else '_RULES_' + filename |upper }}"
     n_chain: "{{ f_chain if direct else 'RULES_' + filename |upper }}"
-    direct: "{{ props.direct |default(wrt_net_firewall_default_direct) |bool }}"
+    direct: "{{ props.direct |d(wrt_net_firewall_default_direct) |bool }}"
     indirect: "{{ not direct }}"
 
-    props: "{{ wrt_net_firewall[device][ichain] |default({}) }}"
-    p_rules: "{{ props.rules |default([],true) |flatten }}"
-    p_first: "{{ props.first |default(false) |bool }}"
+    props: "{{ wrt_net_firewall[device][ichain] |d({}) }}"
+    p_rules: "{{ props.rules |d([],true) |flatten }}"
+    p_first: "{{ props.first |d(false) |bool }}"
     rules: "{{ p_first |ternary(p_rules |reverse |list, p_rules) }}"
 
-    std_rules: "{{ props.std_rules |default(false) |bool }}"
-    std_lists: "{{ props.std_lists |default(false) |bool }}"
-    domain: "{{ props.domain |default('inet',true) }}"
+    std_rules: "{{ props.std_rules |d(false) |bool }}"
+    std_lists: "{{ props.std_lists |d(false) |bool }}"
+    domain: "{{ props.domain |d('inet',true) }}"
     got_ipv4: "{{ domain in ['inet', 'ipv4'] }}"
     got_ipv6: "{{ domain in ['inet', 'ipv6'] }}"
   notify: restart wrt service routing

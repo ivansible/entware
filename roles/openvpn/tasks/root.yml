@@ -1,24 +1,24 @@
 ---
 - name: install openvpn packages
-  opkg:
+  community.general.opkg:
     name: "{{ wrt_ovpn_packages |join(',') }}"
 
 - name: create directory for openvpn configs
-  file:
+  ansible.builtin.file:
     path: /opt/etc/openvpn
     state: directory
     mode: 0755
 
 
 - name: update openvpn configs
-  copy:
+  ansible.builtin.copy:
     dest: "/opt/etc/openvpn/{{ client_name }}.conf"
     ## fix extra linefeed at the end
     content: "{{ lookup('template', 'client.ovpn').strip() }}"
     force: true
     backup: "{{ wrt_ovpn_backups |bool }}"
     mode: 0644
-  loop: "{{ wrt_ovpn_servers |default([],true) }}"
+  loop: "{{ wrt_ovpn_servers |d([],true) }}"
   loop_control:
     label: "{{ item.name }}"
   notify: restart wrt service openvpn
@@ -31,7 +31,7 @@
     visible_port: "{{ item.port }}"
     client_proto: "{{ 'udp' if item.proto == 'udp' else 'tcp-client' }}"
 
-    proxy: "{{ item.proxy |default('',true) |string }}"
+    proxy: "{{ item.proxy |d('',true) |string }}"
     proxy_url: "{{ proxy if '//' in proxy else '//' + proxy }}"
     proxy_type: "{{ proxy_url |urlsplit('scheme') or 'socks5' }}"
     proxy_host: "{{ proxy_url |urlsplit('hostname') or '127.0.0.1' }}"
@@ -55,12 +55,12 @@
 
 
 - name: verify that default openvpn peer has config
-  file:
+  ansible.builtin.file:
     path: "/opt/etc/openvpn/{{ wrt_ovpn_default_server }}.conf"
     state: file
 
 - name: update symlink for default openvpn peer
-  file:
+  ansible.builtin.file:
     state: link
     dest: /opt/etc/openvpn/openvpn.conf
     src: "{{ wrt_ovpn_default_server }}.conf"

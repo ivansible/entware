@@ -1,5 +1,5 @@
 ---
-# handlers for ivansible.wrt_wireguard
+## handlers for ivansible.entware.wireguard
 
 - name: restart wrt service wireguard
   ivansible.entware.openwrt_init2:

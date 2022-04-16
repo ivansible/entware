@@ -1,10 +1,10 @@
 ---
 - name: install srelay package
-  opkg:
+  community.general.opkg:
     name: srelay
 
 - name: configure srelay as simple socks proxy
-  copy:
+  ansible.builtin.copy:
     dest: /opt/etc/srelay.conf
     content: |
       * any
@@ -14,7 +14,7 @@
   notify: restart wrt service srelay
 
 - name: restrict srelay to listening on private interface
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /opt/etc/init.d/S26srelay
     regex: '^ARGS='
     line: "ARGS=\"{{ arg_config }} {{ arg_listen }} {{ arg_log }}\""
@@ -24,6 +24,7 @@
     arg_listen: "-i {{ wrt_srelay_addr }}:{{ wrt_srelay_port |int }}"
     arg_log: "{{ '-r -s' if wrt_srelay_verbose |bool else '-q' }}"
   notify: restart wrt service srelay
-  when: wrt_srelay_addr |default('') and
-        wrt_srelay_port |int
+  when:
+    - wrt_srelay_addr |d('')
+    - wrt_srelay_port |int
 ...

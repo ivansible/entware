@@ -1,5 +1,5 @@
 ---
-# handlers for ivansible.wrt_privoxy
+## handlers for ivansible.entware.privoxy
 
 - name: restart wrt service privoxy
   ivansible.entware.openwrt_init2:

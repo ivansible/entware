@@ -8,6 +8,7 @@ wrt_ovpn_servers: []
 #    host: myserver.com           # server host or address
 #    port: 1194                   # server port
 #    proto: udp                   # tcp or udp
+#    tun_mtu: 0                   # optional
 #    proxy: ~                     # optional, eg. socks5://address:port
 #    client_cert: '--- BEGIN...'  # client certificate as text
 #    client_key: '--- BEGIN...'   # client key as text

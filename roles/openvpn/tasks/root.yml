@@ -30,6 +30,7 @@
     server_cname: "{{ item.cname }}"
     visible_port: "{{ item.port }}"
     client_proto: "{{ 'udp' if item.proto == 'udp' else 'tcp-client' }}"
+    tun_mtu: "{{ item.tun_mtu |d(0) }}"
 
     proxy: "{{ item.proxy |d('',true) |string }}"
     proxy_url: "{{ proxy if '//' in proxy else '//' + proxy }}"

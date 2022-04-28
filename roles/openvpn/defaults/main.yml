@@ -22,13 +22,10 @@ wrt_ovpn_backups: true
 
 ## Settings below this line must be synchronized between openvpn roles
 
-wrt_ovpn_curve: prime256v1
-wrt_ovpn_cipher: AES-128-GCM
-wrt_ovpn_cc_cipher: TLS-ECDHE-ECDSA-WITH-AES-128-GCM-SHA256
+wrt_ovpn_tls13: false
+wrt_ovpn_cipher: "AES-{{ wrt_ovpn_tls13 |bool |ternary(256,128) }}-GCM"
 wrt_ovpn_hmac_alg: SHA256
-
 wrt_ovpn_reneg_sec: ~  # cipher renegotiantion interval (default: 1 hour)
-wrt_ovpn_compress: ~   # one of: lz4-v2, lz4, lzo, none (default: no compression)
 
 wrt_ovpn_tun_device: tun
 ...

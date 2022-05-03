@@ -64,7 +64,7 @@
     src: nf-if-rules.sh
     dest: "{{ wrt_net_nf_dir }}/{{ filename }}.rules"
     mode: 0755
-  when: rules |d([])
+  when: rules |d([]) or std_rules |bool
   loop: "{{ (wrt_net_firewall |d({},true)).keys()
           | sort | product(std_chains_list) | list }}"
   loop_control:

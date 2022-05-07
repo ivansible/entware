@@ -1,26 +1,24 @@
 {
   "log": {
 {% if wrt_v2ray_logging |bool %}
-    "loglevel": "info",
+    "loglevel": "{{ wrt_v2ray_debug |bool |ternary('debug','info') }}",
     "access": "/opt/var/log/v2ray/access.log",
     "error": "/opt/var/log/v2ray/error.log"
 {% else %}
-    "loglevel": "warning"
+    "loglevel": "{{ wrt_v2ray_debug |bool |ternary('debug','warning') }}"
 {% endif %}
   },
-  "inbounds": [
-    {
-      "port": {{ wrt_v2ray_socks_port |int }},
-      "listen": "{{ wrt_v2ray_socks_addr }}",
-      "tag": "socks-inbound",
-      "protocol": "socks",
-      "settings": {
-        "auth": "noauth",
-        "udp": false,
-        "ip": "{{ wrt_v2ray_socks_addr }}"
-      }
+  "inbounds": [{
+    "port": {{ wrt_v2ray_socks_port |int }},
+    "listen": "{{ wrt_v2ray_socks_addr }}",
+    "tag": "socks-inbound",
+    "protocol": "socks",
+    "settings": {
+      "auth": "noauth",
+      "udp": false,
+      "ip": "{{ wrt_v2ray_socks_addr }}"
     }
-  ],
+  }],
   "outbounds": [
 {% for domain in wrt_v2ray_domains |d([],true) |flatten %}
     {
@@ -31,9 +29,7 @@
           "address": "{{ domain }}",
           "port": {{ wrt_v2ray_web_port |int }},
           "users": [{
-              "id": "{{ wrt_v2ray_uuid }}",
-              "alterId": {{ wrt_v2ray_altids |int }},
-              "security": "{{ wrt_v2ray_security }}"
+              "id": "{{ wrt_v2ray_uuid }}"
           }]
         }]
       },

@@ -7,9 +7,11 @@
 - name: detect latest v2ray client release
   ivansible.base.github_release:
     repository: v2fly/v2ray-core
-    release: latest
-    template: '{download_url}/v2ray-linux-mipsle.zip'
-    creates: "{{ wrt_v2ray_client_binary }}"
+    release: "{{ wrt_v2ray_version }}"
+    template: '{download_url}/v2ray-linux-mips32le.zip'
+    strip_v: true
+    version_script: "{{ wrt_v2ray_client_binary }} -version"
+    script_regex: '[0-9]+[.][0-9._-]+'
     reinstall: "{{ wrt_v2ray_client_upgrade |bool }}"
   register: latest_v2ray_client_release
   notify: restart wrt service v2ray

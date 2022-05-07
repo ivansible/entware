@@ -2,6 +2,7 @@
 # defaults for ivansible.wrt_v2ray
 
 wrt_v2ray_enable: true
+wrt_v2ray_version: latest
 
 wrt_v2ray_socks_port: 21080     # avoid port overlap with shadowsocks
 wrt_v2ray_socks_addr: 127.0.0.1

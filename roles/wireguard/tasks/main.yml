@@ -2,7 +2,12 @@
 - name: become root and setup wireguard
   ansible.builtin.import_tasks: root.yml
   become: true
-  when: wrt_wg_nets |d([])
+  when:
+    - nets |d([])
+    - devs |d([])
+  vars:
+    nets: "{{ wrt_wg_nets |d([],true) }}"
+    devs: "{{ wrt_wg_devices |d({},true) |dictsort }}"
   tags:
     - wrt_wg_all
     - wrt_wireguard_all

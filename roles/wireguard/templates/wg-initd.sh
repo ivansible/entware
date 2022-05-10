@@ -4,7 +4,6 @@
 #
 #set -x
 
-DEVICE={{ wrt_wg_dev }}
 {% if wrt_wg_prefer_userspace |bool %}
 export WG_QUICK_PREFER_USERSPACE=true
 {% endif %}
@@ -12,12 +11,16 @@ PATH=/opt/sbin:/opt/bin:/opt/usr/sbin:/opt/usr/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 start()
 {
-    wg-quick up "$DEVICE"
+{% for dev in devs %}
+    wg-quick up {{ dev.0 }}
+{% endfor %}
 }
 
 stop()
 {
-    wg-quick down "$DEVICE"
+{% for dev in devs %}
+    wg-quick down {{ dev.0 }}
+{% endfor %}
 }
 
 check()

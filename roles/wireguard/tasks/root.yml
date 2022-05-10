@@ -21,17 +21,6 @@
     force: true
   tags: wrt_wg_install
 
-- name: create wireguard startup script
-  ansible.builtin.template:
-    src: wg-initd.sh
-    dest: "/opt/etc/init.d/{{ wrt_wg_initd }}"
-    mode: 0755
-    force: true
-  notify: restart wrt service wireguard
-  tags:
-    - wrt_wg_install
-    - wrt_wg_service
-
 - name: create wireguard config directory
   ansible.builtin.file:
     path: /opt/etc/wireguard
@@ -47,6 +36,34 @@
     mode: 0640
   tags: wrt_wg_config
 
+- name: verify that default wireguard nets have associated device
+  ansible.builtin.assert:
+    that:
+      - our_net |length == 1
+      - net_dev == dev_name
+    quiet: true
+  vars:
+    dev_name: "{{ dev.0 |d('') }}"
+    net_name: "{{ dev.1 |d('none',true) }}"
+    our_net: "{{ nets |selectattr('name','==',net_name) }}"
+    net_dev: "{{ our_net.0.dev |d('') }}"
+  when: net_name != 'none'
+  loop: "{{ devs }}"
+  loop_control:
+    loop_var: dev
+    label: "{{ dev_name }}"
+  tags: wrt_wg_config
+
+- name: verify that default wireguard nets have associated config
+  ansible.builtin.file:
+    path: "/opt/etc/wireguard/{{ item.1 |d('none',true) }}.conf"
+    state: file
+  loop: "{{ devs }}"
+  loop_control:
+    loop_var: dev
+    label: "{{ dev.0 }}"
+  tags: wrt_wg_config
+
 - name: update wireguard configuration
   ansible.builtin.template:
     src: wireguard.conf
@@ -58,29 +75,36 @@
     port: "{{ net.port |d(wrt_wg_port, true) |d(0,true) |int }}"
     mtu: "{{ net.mtu |d(wrt_wg_mtu, true) |d(0,true) |int }}"
     keepalive: "{{ net.keepalive |d(wrt_wg_keepalive, true) |d(0,true) |int }}"
-    dev: "{{ wrt_wg_dev }}"
+    dev: "{{ net.dev |d(wrt_wg_dev, true) |d('') }}"
+    metric: "{{ net.metric |d(wrt_wg_metric, true) |d(0,true) |int }}"
     peers: "{{ net.peers }}"
-    metric: "{{ wrt_wg_metric }}"
-  loop: "{{ wrt_wg_nets |d([],true) }}"
+  loop: "{{ nets }}"
   loop_control:
     loop_var: net
     label: "{{ net.name }}"
   notify: restart wrt service wireguard
   tags: wrt_wg_config
 
-- name: verify that default wireguard net has config
-  ansible.builtin.file:
-    path: "/opt/etc/wireguard/{{ wrt_wg_default_net |d('none',true) }}.conf"
-    state: file
-  tags: wrt_wg_config
-
 - name: update symlink for default wireguard net
   ansible.builtin.file:
     state: link
-    dest: "/opt/etc/wireguard/{{ wrt_wg_dev }}.conf"
-    src: "{{ wrt_wg_default_net |d('none',true) }}.conf"
+    src: "{{ dev.1 |d('none',true) }}.conf"
+    dest: "/opt/etc/wireguard/{{ dev.0 }}.conf"
+  loop: "{{ devs }}"
+  loop_control:
+    loop_var: dev
+    label: "{{ dev.0 }}"
   notify: restart wrt service wireguard
   tags: wrt_wg_config
+
+- name: setup wireguard startup script
+  ansible.builtin.template:
+    src: wg-initd.sh
+    dest: "/opt/etc/init.d/{{ wrt_wg_initd }}"
+    mode: 0755
+    force: true
+  notify: restart wrt service wireguard
+  tags: wrt_wg_service
 
 - name: enable wrt service wireguard
   ivansible.entware.openwrt_init2:
